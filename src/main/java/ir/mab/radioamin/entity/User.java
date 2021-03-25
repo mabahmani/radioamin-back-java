@@ -1,16 +1,16 @@
 package ir.mab.radioamin.entity;
 
-import ir.mab.radioamin.annotaion.ValidPassword;
+import ir.mab.radioamin.constraint.ValidPassword;
 import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @Entity
 @Data
+@ValidPassword
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -18,12 +18,9 @@ public class User {
 
     @Email
     @Column(unique = true)
-    @NotNull
     @NotBlank
     String email;
 
-    @ValidPassword
-    @NotNull
     @NotBlank
     String password;
 

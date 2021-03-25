@@ -1,21 +1,27 @@
-package ir.mab.radioamin.annotaion;
+package ir.mab.radioamin.constraint;
 
+import ir.mab.radioamin.entity.User;
 import org.passay.*;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 
-public class PasswordConstraintValidator implements ConstraintValidator<ValidPassword, String> {
+public class PasswordConstraintValidator implements ConstraintValidator<ValidPassword, User> {
     @Override
     public void initialize(ValidPassword constraintAnnotation) {
 
     }
 
     @Override
-    public boolean isValid(String password, ConstraintValidatorContext context) {
+    public boolean isValid(User user, ConstraintValidatorContext context) {
+
+        if (user.getPassword() == null){
+            user.setPassword("");
+        }
+
         PasswordValidator validator = new PasswordValidator(Arrays.asList(
-                new LengthRule(8),
+                new LengthRule(8,64),
                 new CharacterRule(EnglishCharacterData.UpperCase,1),
                 new CharacterRule(EnglishCharacterData.LowerCase,1),
                 new CharacterRule(EnglishCharacterData.Special,1),
@@ -24,13 +30,19 @@ public class PasswordConstraintValidator implements ConstraintValidator<ValidPas
                 new WhitespaceRule()));
 
 
-        RuleResult result = validator.validate(new PasswordData(password));
+        RuleResult result = validator.validate(new PasswordData(user.getEmail(),user.getPassword()));
+
         if (result.isValid()) {
             return true;
         }
-        context.disableDefaultConstraintViolation();
-        String messages = String.join(", ", validator.getMessages(result));
-        context.buildConstraintViolationWithTemplate(messages).addConstraintViolation();
+
+
+        String messageTemplate = String.join(", ", validator.getMessages(result));
+        context.buildConstraintViolationWithTemplate(messageTemplate)
+                .addConstraintViolation()
+                .disableDefaultConstraintViolation();
+
         return false;
     }
+
 }

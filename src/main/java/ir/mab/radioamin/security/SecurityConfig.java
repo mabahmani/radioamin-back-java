@@ -13,11 +13,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         http.authorizeRequests()
-                .antMatchers("/").hasRole("ADMIN")
-                .anyRequest()
-                .authenticated()
+                .anyRequest().permitAll()
                 .and()
-                .formLogin();
+                .csrf().disable();
+//                .antMatchers("/").hasRole("DEVELOPER")
+//                .anyRequest()
+//                .authenticated()
+//                .and()
+//                .formLogin();
 //                .and()
 //                .sessionManagement()
 //                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

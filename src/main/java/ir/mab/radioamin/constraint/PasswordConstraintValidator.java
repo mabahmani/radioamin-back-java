@@ -20,6 +20,10 @@ public class PasswordConstraintValidator implements ConstraintValidator<ValidPas
             user.setPassword("");
         }
 
+        if (user.getEmail() == null){
+            user.setEmail("");
+        }
+
         PasswordValidator validator = new PasswordValidator(Arrays.asList(
                 new LengthRule(8,64),
                 new CharacterRule(EnglishCharacterData.UpperCase,1),

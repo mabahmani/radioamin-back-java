@@ -137,7 +137,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         final ErrorResponse errorResponse = new ErrorResponse(error);
         return handleExceptionInternal(ex, errorResponse, headers, HttpStatus.UNPROCESSABLE_ENTITY, request);
     }
-u
+
     @Override
     protected ResponseEntity<Object> handleMissingServletRequestPart(final MissingServletRequestPartException ex, final HttpHeaders headers, final HttpStatus status, final WebRequest request) {
         logger.info(ex.getClass().getName());

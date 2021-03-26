@@ -17,6 +17,7 @@ import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -164,7 +165,15 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, errorResponse, headers, status, request);
     }
 
-    //
+    @Override
+    protected ResponseEntity<Object> handleMissingPathVariable(MissingPathVariableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        Error error = new Error(ErrorType.MissingPathVariableException,
+                ex.getVariableName(),
+                ex.getParameter()+ " parameter is missing",
+                ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.MissingPathVariableException).toUriString()
+        );
+        final ErrorResponse errorResponse = new ErrorResponse(error);
+        return handleExceptionInternal(ex, errorResponse, headers, status, request);    }
 
     @ExceptionHandler({ MethodArgumentTypeMismatchException.class })
     public ResponseEntity<Object> handleMethodArgumentTypeMismatch(final MethodArgumentTypeMismatchException ex, final WebRequest request) {
@@ -229,7 +238,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         Objects.requireNonNull(ex.getSupportedHttpMethods()).forEach(t -> builder.append(t).append(" "));
 
         Error error = new Error(ErrorType.HttpRequestMethodNotSupportedException,
-                ex.getMethod(),
+                "Method: " + ex.getMethod(),
                 builder.toString(),
                 ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.HttpRequestMethodNotSupportedException).toUriString()
         );

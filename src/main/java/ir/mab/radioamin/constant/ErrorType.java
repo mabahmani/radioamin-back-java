@@ -14,4 +14,5 @@ public enum ErrorType {
     HttpMediaTypeNotAcceptableException,
     HttpMessageNotReadableException,
     NoHandlerFoundException,
+    MissingPathVariableException,
 }

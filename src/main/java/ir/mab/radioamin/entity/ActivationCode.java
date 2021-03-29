@@ -21,7 +21,6 @@ public class ActivationCode {
     String code;
 
     @NotNull
-    @NotBlank
     Long createdTime;
 
     @OneToOne(mappedBy = "activationCode")

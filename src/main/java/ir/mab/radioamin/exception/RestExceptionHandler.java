@@ -299,6 +299,22 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), status, request);
     }
 
+
+    @ExceptionHandler(ResourceAlreadyExistsException.class)
+    protected ResponseEntity<Object> handleResourceAlreadyExistsException(ResourceAlreadyExistsException ex, WebRequest request) {
+        logger.info(ex.getClass().getName());
+        logger.error("error", ex);
+
+        Error error = new Error(ErrorType.ResourceAlreadyExistsException,
+                ex.getResource(),
+                ex.getResource() + ": " + ex.getValue() + " is already exists.",
+                ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.ResourceAlreadyExistsException).toUriString()
+        );
+        final ErrorResponse errorResponse = new ErrorResponse(error);
+
+        return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), HttpStatus.CONFLICT, request);
+    }
+
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<Object> handleAll(Exception ex,WebRequest request) {
         logger.info(ex.getClass().getName());

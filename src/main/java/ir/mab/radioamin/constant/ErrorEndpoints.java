@@ -15,4 +15,5 @@ public class ErrorEndpoints {
     final public static String HttpMediaTypeNotAcceptableException = "error/HttpMediaTypeNotAcceptableException";
     final public static String NoHandlerFoundException = "error/NoHandlerFoundException";
     final public static String MissingPathVariableException = "error/MissingPathVariableException";
+    final public static String ResourceAlreadyExistsException = "error/ResourceAlreadyExistsException";
 }

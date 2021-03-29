@@ -315,6 +315,51 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), HttpStatus.CONFLICT, request);
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    protected ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
+        logger.info(ex.getClass().getName());
+        logger.error("error", ex);
+
+        Error error = new Error(ErrorType.ResourceNotFoundException,
+                ex.getResource(),
+                ex.getResource() + " with " + ex.getParameter() + " = " + ex.getValue() + " not found.",
+                ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.ResourceNotFoundException).toUriString()
+        );
+        final ErrorResponse errorResponse = new ErrorResponse(error);
+
+        return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler(ResourceExpiredException.class)
+    protected ResponseEntity<Object> handleResourceExpiredException(ResourceExpiredException ex, WebRequest request) {
+        logger.info(ex.getClass().getName());
+        logger.error("error", ex);
+
+        Error error = new Error(ErrorType.ResourceExpiredException,
+                ex.getResource(),
+                ex.getResource() + " has already expired",
+                ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.ResourceExpiredException).toUriString()
+        );
+        final ErrorResponse errorResponse = new ErrorResponse(error);
+
+        return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), HttpStatus.FORBIDDEN, request);
+    }
+
+    @ExceptionHandler(WrongCredentialsException.class)
+    protected ResponseEntity<Object> handleWrongCredentialsException(WrongCredentialsException ex, WebRequest request) {
+        logger.info(ex.getClass().getName());
+        logger.error("error", ex);
+
+        Error error = new Error(ErrorType.WrongCredentialsException,
+                ex.getResource() + "." + ex.getParameter(),
+                ex.getParameter() + " with this value: " + ex.getValue() + " is wrong.",
+                ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.WrongCredentialsException).toUriString()
+        );
+        final ErrorResponse errorResponse = new ErrorResponse(error);
+
+        return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
+    }
+
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<Object> handleAll(Exception ex,WebRequest request) {
         logger.info(ex.getClass().getName());

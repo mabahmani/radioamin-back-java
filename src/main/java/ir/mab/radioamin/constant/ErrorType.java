@@ -16,4 +16,7 @@ public enum ErrorType {
     NoHandlerFoundException,
     MissingPathVariableException,
     ResourceAlreadyExistsException,
+    ResourceNotFoundException,
+    ResourceExpiredException,
+    WrongCredentialsException,
 }

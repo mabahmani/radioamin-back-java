@@ -78,7 +78,7 @@ public class UserController {
         return new SuccessResponse<>("An Activation Code Sent To " + user.getEmail(), user);
     }
 
-    @PutMapping("/users/{id}")
+    @PutMapping("/users/{id}/active")
     SuccessResponse<User> activateUser(@RequestBody String activationCode, @PathVariable Long id) {
 
         User user = userRepository.findById(id)

@@ -352,7 +352,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
         Error error = new Error(ErrorType.WrongCredentialsException,
                 ex.getResource() + "." + ex.getParameter(),
-                ex.getParameter() + " with this value: " + ex.getValue() + " is wrong.",
+                ex.getParameter() + " (value='" + ex.getValue() + "')" + " is wrong.",
                 ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.WrongCredentialsException).toUriString()
         );
         final ErrorResponse errorResponse = new ErrorResponse(error);

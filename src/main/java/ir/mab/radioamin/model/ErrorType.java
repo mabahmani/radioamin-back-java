@@ -1,4 +1,4 @@
-package ir.mab.radioamin.constant;
+package ir.mab.radioamin.model;
 
 public enum ErrorType {
     Exception,
@@ -17,6 +17,11 @@ public enum ErrorType {
     MissingPathVariableException,
     ResourceAlreadyExistsException,
     ResourceNotFoundException,
-    ResourceExpiredException,
+    TokenExpiredException,
     WrongCredentialsException,
+    BadCredentialsException,
+    DisabledException,
+    JWTVerificationException,
+    Unauthorized,
+    AccessDenied,
 }

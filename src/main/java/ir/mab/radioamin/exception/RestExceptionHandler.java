@@ -1,14 +1,17 @@
 package ir.mab.radioamin.exception;
 
-import ir.mab.radioamin.constant.ErrorEndpoints;
-import ir.mab.radioamin.constant.ErrorType;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import ir.mab.radioamin.config.ErrorEndpoints;
 import ir.mab.radioamin.model.Error;
 import ir.mab.radioamin.model.ErrorResponse;
+import ir.mab.radioamin.model.ErrorType;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
@@ -330,19 +333,19 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
 
-    @ExceptionHandler(ResourceExpiredException.class)
-    protected ResponseEntity<Object> handleResourceExpiredException(ResourceExpiredException ex, WebRequest request) {
+    @ExceptionHandler(TokenExpiredException.class)
+    protected ResponseEntity<Object> handleTokenExpiredException(TokenExpiredException ex, WebRequest request) {
         logger.info(ex.getClass().getName());
         logger.error("error", ex);
 
-        Error error = new Error(ErrorType.ResourceExpiredException,
-                ex.getResource(),
-                ex.getResource() + " has already expired",
-                ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.ResourceExpiredException).toUriString()
+        Error error = new Error(ErrorType.TokenExpiredException,
+                ex.getTokenName(),
+                ex.getTokenName() + " has already expired",
+                ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.TokenExpiredException).toUriString()
         );
         final ErrorResponse errorResponse = new ErrorResponse(error);
 
-        return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), HttpStatus.FORBIDDEN, request);
+        return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
     }
 
     @ExceptionHandler(WrongCredentialsException.class)
@@ -360,13 +363,58 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
     }
 
+    @ExceptionHandler(BadCredentialsException.class)
+    protected ResponseEntity<Object> handleBadCredentialsException(BadCredentialsException ex, WebRequest request) {
+        logger.info(ex.getClass().getName());
+        logger.error("error", ex);
+
+        Error error = new Error(ErrorType.BadCredentialsException,
+                ex.getMessage(),
+                "Invalid email or password.",
+                ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.BadCredentialsException).toUriString()
+        );
+        final ErrorResponse errorResponse = new ErrorResponse(error);
+
+        return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    protected ResponseEntity<Object> handleDisabledException(DisabledException ex, WebRequest request) {
+        logger.info(ex.getClass().getName());
+        logger.error("error", ex);
+
+        Error error = new Error(ErrorType.DisabledException,
+                "User",
+                ex.getMessage(),
+                ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.DisabledException).toUriString()
+        );
+        final ErrorResponse errorResponse = new ErrorResponse(error);
+
+        return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), HttpStatus.FORBIDDEN, request);
+    }
+
+    @ExceptionHandler(JWTVerificationException.class)
+    protected ResponseEntity<Object> handleJWTVerificationException(JWTVerificationException ex, WebRequest request) {
+        logger.info(ex.getClass().getName());
+        logger.error("error", ex);
+
+        Error error = new Error(ErrorType.JWTVerificationException,
+                "accessToken",
+                ex.getMessage(),
+                ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.JWTVerificationException).toUriString()
+        );
+        final ErrorResponse errorResponse = new ErrorResponse(error);
+
+        return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
+    }
+
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<Object> handleAll(Exception ex,WebRequest request) {
         logger.info(ex.getClass().getName());
         logger.error("error", ex);
 
         Error error = new Error(ErrorType.Exception,
-                ex.getCause().toString(),
+                ex.getCause() == null ? ex.getMessage():ex.getCause().toString(),
                 "An Exception Occurred, Call Developers!",
                 ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.InternalServerError).toUriString()
         );

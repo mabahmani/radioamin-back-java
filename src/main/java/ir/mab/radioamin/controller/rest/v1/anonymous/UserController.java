@@ -8,9 +8,10 @@ import ir.mab.radioamin.exception.ResourceAlreadyExistsException;
 import ir.mab.radioamin.exception.ResourceNotFoundException;
 import ir.mab.radioamin.exception.TokenExpiredException;
 import ir.mab.radioamin.exception.WrongCredentialsException;
-import ir.mab.radioamin.model.JwtResponse;
 import ir.mab.radioamin.model.RoleEnum;
-import ir.mab.radioamin.model.SuccessResponse;
+import ir.mab.radioamin.model.req.ActivateUserRequest;
+import ir.mab.radioamin.model.res.JwtResponse;
+import ir.mab.radioamin.model.res.SuccessResponse;
 import ir.mab.radioamin.repository.RoleRepository;
 import ir.mab.radioamin.repository.UserRepository;
 import ir.mab.radioamin.security.JwtTokenProvider;
@@ -93,13 +94,13 @@ public class UserController {
         return new SuccessResponse<>("An Activation Code Sent To " + user.getEmail(), user);
     }
 
-    @PatchMapping("/users/{id}/active")
-    SuccessResponse<User> activateUser(@RequestBody String activationCode, @PathVariable Long id) {
+    @PatchMapping("/users/active")
+    SuccessResponse<User> activateUser(@RequestBody ActivateUserRequest activateUserRequest) {
 
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User", String.valueOf(id), "userId"));
+        User user = userRepository.findUserByEmail(activateUserRequest.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User", String.valueOf(activateUserRequest.getEmail()), "userId"));
 
-        if (user.getActivationCode().getCode().equals(activationCode)) {
+        if (user.getActivationCode().getCode().equals(activateUserRequest.getActivationCode())) {
             if (System.currentTimeMillis() - user.getActivationCode().getCreatedTime() < ActivationCodeExpireTime) {
                 user.setActive(true);
                 User editedUser = userRepository.save(user);
@@ -108,7 +109,7 @@ public class UserController {
                 throw new TokenExpiredException("ActivationCode");
             }
         } else {
-            throw new WrongCredentialsException("User", activationCode, "ActivationCode");
+            throw new WrongCredentialsException("User", activateUserRequest.getActivationCode(), "ActivationCode");
         }
     }
 
@@ -123,5 +124,28 @@ public class UserController {
         }
 
         throw new WrongCredentialsException("User",user.getPassword(),"Password");
+    }
+
+    @PostMapping("/users/activation-code")
+    @ResponseStatus(HttpStatus.CREATED)
+    SuccessResponse<Boolean> sendActivationCode(@RequestBody String email) {
+
+        User user = userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User", String.valueOf(email), "userId"));
+
+        String code = codeGeneratorService.generateActivationCode();
+
+        ActivationCode activationCode = new ActivationCode();
+        activationCode.setCode(code);
+        activationCode.setCreatedTime(System.currentTimeMillis());
+        activationCode.setUser(user);
+
+        user.setActivationCode(activationCode);
+
+        userRepository.save(user);
+
+        emailService.sendActivationCode(code);
+
+        return new SuccessResponse<>("An Activation Code Sent To " + user.getEmail(), true);
     }
 }

@@ -1,5 +1,6 @@
-package ir.mab.radioamin.model;
+package ir.mab.radioamin.model.res;
 
+import ir.mab.radioamin.model.Error;
 import lombok.Data;
 
 import java.util.Collections;

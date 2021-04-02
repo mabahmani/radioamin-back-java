@@ -3,8 +3,8 @@ package ir.mab.radioamin.exception;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import ir.mab.radioamin.config.ErrorEndpoints;
 import ir.mab.radioamin.model.Error;
-import ir.mab.radioamin.model.ErrorResponse;
 import ir.mab.radioamin.model.ErrorType;
+import ir.mab.radioamin.model.res.ErrorResponse;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -121,23 +121,32 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         logger.info(ex.getClass().getName());
+        Error error;
+        try {
+            String requiredType = "";
+            Pattern pattern = Pattern.compile("`(.*?)`");
+            Matcher matcher = pattern.matcher(Objects.requireNonNull(ex.getMessage()));
 
-        String requiredType = "";
-        Pattern pattern = Pattern.compile("`(.*?)`");
-        Matcher matcher = pattern.matcher(Objects.requireNonNull(ex.getMessage()));
+            if (matcher.find())
+            {
+                requiredType = matcher.group(1);
+            }
 
-        if (matcher.find())
-        {
-            requiredType = matcher.group(1);
+            String fieldName = ex.getMessage().substring(ex.getMessage().lastIndexOf('[') + 2, ex.getMessage().lastIndexOf(']') - 1);
+            error = new Error(ErrorType.HttpMessageNotReadableException,
+                    fieldName + ", RequiredType = " + "( " + requiredType + " )",
+                    "Syntax error, malformed JSON." ,
+                    ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.HttpMessageNotReadableException).toUriString()
+            );
+        }
+        catch (Exception e){
+            error = new Error(ErrorType.HttpMessageNotReadableException,
+                    "RequestBody",
+                    ex.getMessage() ,
+                    ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.HttpMessageNotReadableException).toUriString());
         }
 
-        String fieldName = ex.getMessage().substring(ex.getMessage().lastIndexOf('[') + 2, ex.getMessage().lastIndexOf(']') - 1);
 
-        Error error = new Error(ErrorType.HttpMessageNotReadableException,
-                fieldName + ", RequiredType = " + "( " + requiredType + " )",
-                "Syntax error, malformed JSON." ,
-                ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.HttpMessageNotReadableException).toUriString()
-        );
         final ErrorResponse errorResponse = new ErrorResponse(error);
         return handleExceptionInternal(ex, errorResponse, headers, HttpStatus.UNPROCESSABLE_ENTITY, request);
     }
@@ -325,7 +334,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
         Error error = new Error(ErrorType.ResourceNotFoundException,
                 ex.getResource(),
-                ex.getResource() + " with " + ex.getParameter() + " = " + ex.getValue() + " not found.",
+                ex.getResource() + " with " + ex.getParameter() + " = '" + ex.getValue() + "' not found.",
                 ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.ResourceNotFoundException).toUriString()
         );
         final ErrorResponse errorResponse = new ErrorResponse(error);

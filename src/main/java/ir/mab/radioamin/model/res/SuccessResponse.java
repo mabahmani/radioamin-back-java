@@ -1,4 +1,4 @@
-package ir.mab.radioamin.model;
+package ir.mab.radioamin.model.res;
 
 import lombok.Data;
 

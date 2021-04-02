@@ -105,7 +105,6 @@ public class SecurityConfig {
                 .antMatchers("/swagger-ui/**").hasAuthority(RoleEnum.DEVELOPER.name())
                     .anyRequest().authenticated()
                     .and()
-                    .csrf().disable()
                     .formLogin();
         }
 
@@ -115,7 +114,7 @@ public class SecurityConfig {
         }
 
         @Override
-        public void configure(WebSecurity web) throws Exception {
+        public void configure(WebSecurity web) {
             web.ignoring().antMatchers("/v2/api-docs",
                     "/configuration/ui",
                     "/swagger-resources/**",

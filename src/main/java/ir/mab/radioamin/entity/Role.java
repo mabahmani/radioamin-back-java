@@ -24,7 +24,7 @@ public class Role {
     @NotNull
     RoleEnum role;
 
-    @ManyToMany(mappedBy = "userRoles")
+    @ManyToMany(mappedBy = "userRoles", fetch = FetchType.EAGER)
     Set<User> users;
 
     public Role() {

@@ -35,7 +35,7 @@ public class User {
     Long createdAt;
 
     @JsonIgnore
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "userRoles",
             joinColumns = @JoinColumn(name = "userId"),

@@ -48,4 +48,9 @@ public class User {
     @JoinColumn(name = "activationCodeId", referencedColumnName = "id")
     ActivationCode activationCode;
 
+    @JsonIgnore
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "profileId", referencedColumnName = "id")
+    Profile profile;
+
 }

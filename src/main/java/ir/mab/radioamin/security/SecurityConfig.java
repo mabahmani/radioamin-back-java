@@ -103,7 +103,7 @@ public class SecurityConfig {
         protected void configure(HttpSecurity http) throws Exception {
 
             http.authorizeRequests()
-                .antMatchers("/swagger-ui/").hasAuthority(RoleEnum.DEVELOPER.name())
+                .antMatchers("/swagger-ui/**","/v2/api-docs/**").hasAuthority(RoleEnum.DEVELOPER.name())
                     .anyRequest().authenticated()
                     .and()
                     .formLogin();
@@ -117,12 +117,6 @@ public class SecurityConfig {
         @Override
         public void configure(WebSecurity web) {
             web.ignoring().antMatchers(
-                    "/v2/api-docs/**",
-                    "/swagger-ui/swagger-ui.css",
-                    "/swagger-ui/springfox.css",
-                    "/swagger-ui/swagger-ui-bundle.js",
-                    "/swagger-ui/swagger-ui-standalone-preset.js",
-                    "/swagger-ui/springfox.js",
                     "/configuration/ui",
                     "/swagger-resources/**",
                     "/configuration/security",

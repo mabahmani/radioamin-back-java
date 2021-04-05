@@ -6,6 +6,7 @@ import ir.mab.radioamin.exception.RestAuthenticationEntryPoint;
 import ir.mab.radioamin.model.RoleEnum;
 import ir.mab.radioamin.service.AppUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -137,5 +138,14 @@ public class SecurityConfig {
     @Bean
     public static PasswordEncoder encoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public FilterRegistrationBean<JwtTokenFilter> jwtTokenFilterRegistration(JwtTokenFilter filter) {
+        //@Component in JwtTokenFilter cause spring boot automatically set filter to spring security
+        //by this code we can disable it
+        FilterRegistrationBean<JwtTokenFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false);
+        return registration;
     }
 }

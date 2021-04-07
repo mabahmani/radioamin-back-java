@@ -22,7 +22,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import static ir.mab.radioamin.config.ApiBaseEndpoints.VersionOne.ANONYMOUS;
+import static ir.mab.radioamin.config.ApiBaseEndpoints.VersionOne.*;
 
 @EnableWebSecurity
 public class SecurityConfig {
@@ -57,6 +57,9 @@ public class SecurityConfig {
 
             http.antMatcher(ApiBaseEndpoints.BASE + "/**").authorizeRequests()
                     .antMatchers(ANONYMOUS + "/**").permitAll()
+                    .antMatchers(CONSUMER + "/**").hasAuthority(RoleEnum.CONSUMER.name())
+                    .antMatchers(ADMIN + "/**").hasAuthority(RoleEnum.ADMIN.name())
+                    .antMatchers(DEVELOPER + "/**").hasAuthority(RoleEnum.DEVELOPER.name())
                     .anyRequest().authenticated()
                     .and()
                     .exceptionHandling()

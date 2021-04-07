@@ -10,6 +10,7 @@ import ir.mab.radioamin.exception.TokenExpiredException;
 import ir.mab.radioamin.exception.WrongCredentialsException;
 import ir.mab.radioamin.model.RoleEnum;
 import ir.mab.radioamin.model.req.ActivateUserRequest;
+import ir.mab.radioamin.model.req.ChangeUserPasswordRequest;
 import ir.mab.radioamin.model.res.JwtResponse;
 import ir.mab.radioamin.model.res.SuccessResponse;
 import ir.mab.radioamin.repository.RoleRepository;
@@ -100,17 +101,13 @@ public class UserController {
         User user = userRepository.findUserByEmail(activateUserRequest.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User", String.valueOf(activateUserRequest.getEmail()), "userId"));
 
-        if (user.getActivationCode().getCode().equals(activateUserRequest.getActivationCode())) {
-            if (System.currentTimeMillis() - user.getActivationCode().getCreatedTime() < ActivationCodeExpireTime) {
-                user.setActive(true);
-                User editedUser = userRepository.save(user);
-                return new SuccessResponse<>("user activated.", editedUser);
-            } else {
-                throw new TokenExpiredException("ActivationCode");
-            }
-        } else {
-            throw new WrongCredentialsException("User", activateUserRequest.getActivationCode(), "ActivationCode");
+        if (activationCodeValid(user.getActivationCode(), activateUserRequest.getActivationCode())) {
+            user.setActive(true);
+            User editedUser = userRepository.save(user);
+            return new SuccessResponse<>("user activated.", editedUser);
         }
+
+        throw new WrongCredentialsException("User", activateUserRequest.getActivationCode(), "ActivationCode");
     }
 
     @PostMapping("/users/login")
@@ -119,11 +116,11 @@ public class UserController {
                 authenticationManager
                         .authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
 
-        if (authentication.isAuthenticated()){
-            return new SuccessResponse<>("login successful.",new JwtResponse(jwtTokenProvider.createToken(user.getEmail())));
+        if (authentication.isAuthenticated()) {
+            return new SuccessResponse<>("login successful.", new JwtResponse(jwtTokenProvider.createToken(user.getEmail())));
         }
 
-        throw new WrongCredentialsException("User",user.getPassword(),"Password");
+        throw new WrongCredentialsException("User", user.getPassword(), "Password");
     }
 
     @PostMapping("/users/activation-code")
@@ -147,5 +144,32 @@ public class UserController {
         emailService.sendActivationCode(code);
 
         return new SuccessResponse<>("An Activation Code Sent To " + user.getEmail(), true);
+    }
+
+    @PatchMapping("/users/password")
+    SuccessResponse<User> changeUserPassword(@Valid @RequestBody ChangeUserPasswordRequest changeUserPasswordRequest) {
+
+        User user = userRepository.findUserByEmail(changeUserPasswordRequest.getUser().getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User", String.valueOf(changeUserPasswordRequest.getUser().getEmail()), "userId"));
+
+        if (activationCodeValid(user.getActivationCode(), changeUserPasswordRequest.getActivationCode())) {
+            user.setPassword(passwordEncoder.encode(changeUserPasswordRequest.getUser().getPassword()));
+            User editedUser = userRepository.save(user);
+            return new SuccessResponse<>("Password Changed", editedUser);
+        }
+
+        throw new WrongCredentialsException("User", changeUserPasswordRequest.getActivationCode(), "ActivationCode");
+    }
+
+    private Boolean activationCodeValid(ActivationCode userInDbActivationCode, String requestActivationCode) {
+        if (userInDbActivationCode.getCode().equals(requestActivationCode)) {
+            if (System.currentTimeMillis() - userInDbActivationCode.getCreatedTime() < ActivationCodeExpireTime) {
+                return true;
+            } else {
+                throw new TokenExpiredException("ActivationCode");
+            }
+        }
+
+        return false;
     }
 }

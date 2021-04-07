@@ -27,7 +27,6 @@ public class Profile {
     @OneToOne(mappedBy = "profile")
     User user;
 
-    @JsonIgnore
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "avatarId", referencedColumnName = "id")
     Avatar avatar;

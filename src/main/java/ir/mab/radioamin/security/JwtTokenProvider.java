@@ -6,22 +6,71 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import ir.mab.radioamin.repository.BlackRefreshTokenRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
+import static ir.mab.radioamin.security.SecurityConstants.*;
+
 @Component
 public class JwtTokenProvider {
+
+    BlackRefreshTokenRepository blackRefreshTokenRepository;
+
+    @Autowired
+    public JwtTokenProvider(BlackRefreshTokenRepository blackRefreshTokenRepository) {
+        this.blackRefreshTokenRepository = blackRefreshTokenRepository;
+    }
 
     public String createToken(String userIdentifier){
         try {
             return JWT.create()
                     .withSubject(userIdentifier)
-                    .withExpiresAt(new Date(System.currentTimeMillis() + SecurityConstants.JWT_EXPIRATION_TIME))
-                    .sign(Algorithm.HMAC256(SecurityConstants.JWT_SECRET));
+                    .withIssuer(JWT_ISSUER)
+                    .withExpiresAt(new Date(System.currentTimeMillis() + JWT_EXPIRATION_TIME))
+                    .sign(Algorithm.HMAC256(JWT_SECRET));
         } catch (JWTCreationException exception) {
             throw new RuntimeException(exception);
+        }
+    }
+
+    public String createRefreshToken(String userIdentifier){
+        try {
+            return JWT.create()
+                    .withSubject(userIdentifier)
+                    .withIssuer(REFRESH_TOKEN_ISSUER)
+                    .withExpiresAt(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME))
+                    .sign(Algorithm.HMAC256(REFRESH_TOKEN_SECRET));
+        } catch (JWTCreationException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
+    public Boolean refreshTokenIsValid(String token){
+
+        if (token == null)
+            return false;
+
+        if (isExpired(token))
+            return false;
+
+        if (!isRefreshToken(token))
+            return false;
+
+        if (blackRefreshTokenRepository.existsBlackRefreshTokenByRefreshToken(token))
+            return false;
+
+        try {
+            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(REFRESH_TOKEN_SECRET))
+                    .build();
+            verifier.verify(token);
+            return true;
+        }
+        catch (JWTVerificationException exception){
+            return false;
         }
     }
 
@@ -30,17 +79,21 @@ public class JwtTokenProvider {
         String token = resolveToken(httpServletRequest);
 
         if (token == null){
-            httpServletRequest.setAttribute(SecurityConstants.JWT_NOT_ATTACHED_ATTRIBUTE,"Access Token Not Attached.");
+            httpServletRequest.setAttribute(JWT_NOT_ATTACHED_ATTRIBUTE,"Access Token Not Attached.");
             throw new JWTVerificationException("Access Token Not Attached.");
         }
 
         if (isExpired(token)){
-            httpServletRequest.setAttribute(SecurityConstants.JWT_EXPIRED_ATTRIBUTE,"Access Token Has Expired.");
+            httpServletRequest.setAttribute(JWT_EXPIRED_ATTRIBUTE,"Access Token Has Expired.");
             throw new JWTVerificationException("Access Token Has Expired.");
         }
 
+        if (!isAccessToken(token)){
+            throw new JWTVerificationException("Invalid Access Token.");
+        }
+
         try {
-            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(SecurityConstants.JWT_SECRET))
+            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(JWT_SECRET))
                     .build();
 
             DecodedJWT jwt = verifier.verify(token);
@@ -52,20 +105,37 @@ public class JwtTokenProvider {
         }
     }
 
+    public String getUserIdentifier(String token){
+        return JWT.decode(token).getSubject();
+    }
+
+    private boolean isAccessToken(String token) {
+        return JWT.decode(token).getIssuer().equals(JWT_ISSUER);
+    }
+
+
+    private boolean isRefreshToken(String token) {
+        return JWT.decode(token).getIssuer().equals(REFRESH_TOKEN_ISSUER);
+    }
+
     private boolean isExpired(String token){
         return JWT.decode(token).getExpiresAt().before(new Date());
     }
 
+    public long getExpiredAt(String token){
+        return JWT.decode(token).getExpiresAt().getTime();
+    }
+
     private String resolveToken(HttpServletRequest req) {
-        String bearerToken = req.getHeader(SecurityConstants.JWT_HEADER_STRING);
+        String bearerToken = req.getHeader(JWT_HEADER_STRING);
 
         if(bearerToken == null){
-            req.setAttribute(SecurityConstants.JWT_NOT_ATTACHED_ATTRIBUTE,"Access Token Not Attached.");
+            req.setAttribute(JWT_NOT_ATTACHED_ATTRIBUTE,"Access Token Not Attached.");
         }
 
         else {
-            if (!bearerToken.startsWith(SecurityConstants.JWT_TOKEN_PREFIX)){
-                req.setAttribute(SecurityConstants.JWT_BEARER_NOT_ATTACHED_ATTRIBUTE,"It's not a Bearer Token.");
+            if (!bearerToken.startsWith(JWT_TOKEN_PREFIX)){
+                req.setAttribute(JWT_BEARER_NOT_ATTACHED_ATTRIBUTE,"It's not a Bearer Token.");
             }
             else {
                 return bearerToken.substring(7);

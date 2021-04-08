@@ -21,7 +21,8 @@ public class RestAccessDeniedHandler implements AccessDeniedHandler {
 
     @Override
     public void handle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AccessDeniedException e) throws IOException, ServletException {
-        ErrorResponse response = new ErrorResponse(new Error(ErrorType.AccessDenied,"","Access Denied.",
+        ErrorResponse response = new ErrorResponse(new Error(ErrorType.AccessDenied,httpServletRequest.getRequestURI() + " @" + httpServletRequest.getMethod(),
+                "You don't have required authorities",
                 ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.AccessDenied).toUriString()));
         httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
         httpServletResponse.setContentType("application/json");

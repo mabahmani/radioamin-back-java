@@ -9,9 +9,7 @@ import ir.mab.radioamin.repository.ProfileRepository;
 import ir.mab.radioamin.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = ApiBaseEndpoints.VersionOne.CONSUMER)
@@ -27,10 +25,7 @@ public class ProfileController {
 
     @GetMapping("/profile")
     SuccessResponse<Profile> getUserProfile() {
-        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        User user = userRepository.findUserByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User", String.valueOf(email), "userId"));
+        User user = findUser();
 
         Profile profile = user.getProfile();
 
@@ -43,5 +38,27 @@ public class ProfileController {
         }
 
         return new SuccessResponse<>("Success", user.getProfile());
+    }
+
+    @PutMapping("/profile")
+    SuccessResponse<Profile> updateUserProfile(@RequestBody Profile profile) {
+
+        User user = findUser();
+
+        Profile userProfile = user.getProfile();
+
+        userProfile.setBio(profile.getBio());
+        userProfile.setDisplayName(profile.getDisplayName());
+        userProfile.setFirstName(profile.getFirstName());
+        userProfile.setLastName(profile.getLastName());
+        userProfile = profileRepository.save(userProfile);
+
+        return new SuccessResponse<>("Profile Updated", userProfile);
+    }
+
+    private User findUser(){
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User", String.valueOf(email), "userId"));
     }
 }

@@ -29,5 +29,6 @@ public class Profile {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "avatarId", referencedColumnName = "id")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Avatar avatar;
 }

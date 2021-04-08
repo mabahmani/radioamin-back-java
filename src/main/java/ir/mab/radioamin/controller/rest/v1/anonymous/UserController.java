@@ -30,7 +30,8 @@ import javax.validation.Valid;
 import java.util.Collections;
 import java.util.Optional;
 
-import static ir.mab.radioamin.config.GeneralConstants.ActivationCodeExpireTime;
+import static ir.mab.radioamin.security.SecurityConstants.ActivationCodeExpireTime;
+
 
 @RestController
 @RequestMapping(path = ApiBaseEndpoints.VersionOne.ANONYMOUS)

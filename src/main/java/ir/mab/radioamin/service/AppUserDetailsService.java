@@ -59,8 +59,14 @@ public class AppUserDetailsService implements UserDetailsService {
 
         List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
 
-        for (Role role : userRoles){
-            grantedAuthorities.add(new SimpleGrantedAuthority(role.getRole().name()));
+        if (userRoles.isEmpty()){
+            grantedAuthorities.add(new SimpleGrantedAuthority(RoleEnum.CONSUMER.name()));
+        }
+
+        else {
+            for (Role role : userRoles){
+                grantedAuthorities.add(new SimpleGrantedAuthority(role.getRole().name()));
+            }
         }
 
         return grantedAuthorities;

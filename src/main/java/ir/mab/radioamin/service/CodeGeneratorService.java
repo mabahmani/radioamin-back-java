@@ -5,8 +5,7 @@ import org.springframework.stereotype.Service;
 import java.util.Random;
 
 @Service
-public class CodeGeneratorService implements ICodeGenerator {
-    @Override
+public class CodeGeneratorService {
     public String generateActivationCode() {
         Random rnd = new Random();
         int number = rnd.nextInt(999999);

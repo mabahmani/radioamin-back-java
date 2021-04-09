@@ -24,7 +24,8 @@ public class ProfileController {
     }
 
     @GetMapping("/profile")
-    SuccessResponse<Profile> getUserProfile() {
+    SuccessResponse<Profile> getUserProfile(@RequestHeader("User-Agent") String userAgent) {
+        System.out.println(userAgent);
         User user = findUser();
 
         Profile profile = user.getProfile();

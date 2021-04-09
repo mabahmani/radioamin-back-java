@@ -3,8 +3,8 @@ package ir.mab.radioamin.controller.rest.v1.anonymous;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import ir.mab.radioamin.config.ApiBaseEndpoints;
 import ir.mab.radioamin.entity.ActivationCode;
-import ir.mab.radioamin.entity.BlackRefreshToken;
 import ir.mab.radioamin.entity.Role;
+import ir.mab.radioamin.entity.Session;
 import ir.mab.radioamin.entity.User;
 import ir.mab.radioamin.exception.ResourceAlreadyExistsException;
 import ir.mab.radioamin.exception.ResourceNotFoundException;
@@ -15,8 +15,8 @@ import ir.mab.radioamin.model.req.ActivateUserRequest;
 import ir.mab.radioamin.model.req.ChangeUserPasswordRequest;
 import ir.mab.radioamin.model.res.JwtResponse;
 import ir.mab.radioamin.model.res.SuccessResponse;
-import ir.mab.radioamin.repository.BlackRefreshTokenRepository;
 import ir.mab.radioamin.repository.RoleRepository;
+import ir.mab.radioamin.repository.SessionRepository;
 import ir.mab.radioamin.repository.UserRepository;
 import ir.mab.radioamin.security.JwtTokenProvider;
 import ir.mab.radioamin.service.CodeGeneratorService;
@@ -29,6 +29,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.Optional;
@@ -42,7 +43,7 @@ public class UserController {
 
     UserRepository userRepository;
     RoleRepository roleRepository;
-    BlackRefreshTokenRepository blackRefreshTokenRepository;
+    SessionRepository sessionRepository;
     EmailService emailService;
     CodeGeneratorService codeGeneratorService;
     PasswordEncoder passwordEncoder;
@@ -51,13 +52,13 @@ public class UserController {
 
     @Autowired
     public UserController(UserRepository userRepository, RoleRepository roleRepository,
-                          BlackRefreshTokenRepository blackRefreshTokenRepository,
+                          SessionRepository sessionRepository,
                           EmailService emailService,
                           CodeGeneratorService codeGeneratorService, PasswordEncoder passwordEncoder,
                           AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
-        this.blackRefreshTokenRepository = blackRefreshTokenRepository;
+        this.sessionRepository = sessionRepository;
         this.emailService = emailService;
         this.codeGeneratorService = codeGeneratorService;
         this.passwordEncoder = passwordEncoder;
@@ -107,7 +108,7 @@ public class UserController {
     SuccessResponse<User> activateUser(@RequestBody ActivateUserRequest activateUserRequest) {
 
         User user = userRepository.findUserByEmail(activateUserRequest.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("User", String.valueOf(activateUserRequest.getEmail()), "userId"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", activateUserRequest.getEmail(), "userId"));
 
         if (activationCodeValid(user.getActivationCode(), activateUserRequest.getActivationCode())) {
             user.setActive(true);
@@ -119,15 +120,34 @@ public class UserController {
     }
 
     @PostMapping("/users/login")
-    SuccessResponse<JwtResponse> loginUser(@RequestBody User user) {
+    SuccessResponse<JwtResponse> loginUser(
+            @RequestHeader("User-Agent")String userAgent,
+            @RequestBody User user,
+            HttpServletRequest httpServletRequest
+    ) {
         Authentication authentication =
                 authenticationManager
                         .authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
 
         if (authentication.isAuthenticated()) {
+
+            String accessToken = jwtTokenProvider.createToken(user.getEmail());
+            String refreshToken = jwtTokenProvider.createRefreshToken(user.getEmail());
+
+            Session session = new Session();
+            session.setIp(httpServletRequest.getRemoteAddr());
+            session.setLastUpdate(System.currentTimeMillis());
+            session.setRefreshToken(refreshToken);
+            session.setUserAgent(userAgent);
+            session.setUser(
+                    userRepository.findUserByEmail(user.getEmail())
+                            .orElseThrow(() ->
+                                    new ResourceNotFoundException("User", user.getEmail(), "userId")));
+
+            sessionRepository.save(session);
+
             return new SuccessResponse<>("login successful",
-                    new JwtResponse(jwtTokenProvider.createToken(user.getEmail()),
-                            jwtTokenProvider.createRefreshToken(user.getEmail())));
+                    new JwtResponse(accessToken, refreshToken));
         }
 
         throw new WrongCredentialsException("User", user.getPassword(), "Password");
@@ -135,7 +155,10 @@ public class UserController {
 
     @PostMapping("/users/new-token")
     @ResponseStatus(HttpStatus.CREATED)
-    SuccessResponse<JwtResponse> newToken(@RequestHeader(JWT_HEADER_STRING) String refreshToken) {
+    SuccessResponse<JwtResponse> newToken(
+            @RequestHeader("User-Agent")String userAgent,
+            @RequestHeader(JWT_HEADER_STRING) String refreshToken,
+            HttpServletRequest httpServletRequest) {
 
         if (!refreshToken.startsWith(JWT_TOKEN_PREFIX)){
             throw new JWTVerificationException("It's not a Bearer token");
@@ -143,16 +166,23 @@ public class UserController {
 
         refreshToken = refreshToken.substring(7);
 
+        Session session = sessionRepository.findSessionByRefreshToken(refreshToken)
+                .orElseThrow(() ->  new JWTVerificationException("Invalid Session"));
+
         if (jwtTokenProvider.refreshTokenIsValid(refreshToken)){
 
-            BlackRefreshToken blackRefreshToken = new BlackRefreshToken();
-            blackRefreshToken.setRefreshToken(refreshToken);
-            blackRefreshToken.setExpiredAt(jwtTokenProvider.getExpiredAt(refreshToken));
-            blackRefreshTokenRepository.save(blackRefreshToken);
+            String email = jwtTokenProvider.getUserIdentifier(refreshToken);
+            String newAccessToken = jwtTokenProvider.createToken(email);
+            String newRefreshToken = jwtTokenProvider.createRefreshToken(email);
+
+            session.setUserAgent(userAgent);
+            session.setRefreshToken(newRefreshToken);
+            session.setLastUpdate(System.currentTimeMillis());
+            session.setIp(httpServletRequest.getRemoteAddr());
+            sessionRepository.save(session);
 
             return new SuccessResponse<>("new accessToken generated",
-                    new JwtResponse(jwtTokenProvider.createToken(jwtTokenProvider.getUserIdentifier(refreshToken)),
-                            jwtTokenProvider.createRefreshToken(jwtTokenProvider.getUserIdentifier(refreshToken))));
+                    new JwtResponse(newAccessToken, newRefreshToken));
         }
 
         throw new JWTVerificationException("Invalid refreshToken");

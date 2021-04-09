@@ -15,6 +15,7 @@ public enum ErrorType {
     HttpMessageNotReadableException,
     NoHandlerFoundException,
     MissingPathVariableException,
+    MissingRequestHeaderException,
     ResourceAlreadyExistsException,
     ResourceNotFoundException,
     TokenExpiredException,

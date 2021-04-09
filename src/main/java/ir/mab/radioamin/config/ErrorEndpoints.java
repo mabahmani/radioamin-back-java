@@ -7,6 +7,7 @@ public class ErrorEndpoints {
     public final static String TypeMismatchException = "error/TypeMismatchException";
     public final static String HttpMessageNotReadableException = "error/HttpMessageNotReadableException";
     public final static String MissingServletRequestPartException = "error/MissingServletRequestPartException";
+    public final static String MissingRequestHeaderException = "error/MissingRequestHeaderException";
     public final static String MissingServletRequestParameterException = "error/MissingServletRequestParameterException";
     public final static String MethodArgumentTypeMismatchException = "error/MethodArgumentTypeMismatchException";
     public final static String ConstraintViolationException = "error/ConstraintViolationException";

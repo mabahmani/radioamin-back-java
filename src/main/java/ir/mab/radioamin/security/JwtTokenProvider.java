@@ -6,8 +6,6 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import ir.mab.radioamin.repository.BlackRefreshTokenRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,13 +15,6 @@ import static ir.mab.radioamin.security.SecurityConstants.*;
 
 @Component
 public class JwtTokenProvider {
-
-    BlackRefreshTokenRepository blackRefreshTokenRepository;
-
-    @Autowired
-    public JwtTokenProvider(BlackRefreshTokenRepository blackRefreshTokenRepository) {
-        this.blackRefreshTokenRepository = blackRefreshTokenRepository;
-    }
 
     public String createToken(String userIdentifier){
         try {
@@ -58,9 +49,6 @@ public class JwtTokenProvider {
             return false;
 
         if (!isRefreshToken(token))
-            return false;
-
-        if (blackRefreshTokenRepository.existsBlackRefreshTokenByRefreshToken(token))
             return false;
 
         try {

@@ -21,6 +21,7 @@ import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -179,6 +180,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleMissingPathVariable(MissingPathVariableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        logger.info(ex.getClass().getName());
+
         Error error = new Error(ErrorType.MissingPathVariableException,
                 ex.getVariableName(),
                 ex.getParameter()+ " parameter is missing",
@@ -222,6 +225,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(TransactionSystemException.class)
     protected ResponseEntity<Object>  handleTransactionException(TransactionSystemException ex, final WebRequest request) throws Throwable {
+        logger.info(ex.getClass().getName());
+
         Throwable cause = ex.getCause();
         if (!(cause instanceof RollbackException)) throw cause;
         if (!(cause.getCause() instanceof ConstraintViolationException)) throw cause.getCause();
@@ -300,6 +305,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        logger.info(ex.getClass().getName());
+
         Error error = new Error(
                 ErrorType.NoHandlerFoundException,
                 ex.getRequestURL(),
@@ -315,7 +322,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ResourceAlreadyExistsException.class)
     protected ResponseEntity<Object> handleResourceAlreadyExistsException(ResourceAlreadyExistsException ex, WebRequest request) {
         logger.info(ex.getClass().getName());
-        logger.error("error", ex);
 
         Error error = new Error(ErrorType.ResourceAlreadyExistsException,
                 ex.getResource(),
@@ -330,7 +336,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     protected ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
         logger.info(ex.getClass().getName());
-        logger.error("error", ex);
 
         Error error = new Error(ErrorType.ResourceNotFoundException,
                 ex.getResource(),
@@ -345,7 +350,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(TokenExpiredException.class)
     protected ResponseEntity<Object> handleTokenExpiredException(TokenExpiredException ex, WebRequest request) {
         logger.info(ex.getClass().getName());
-        logger.error("error", ex);
 
         Error error = new Error(ErrorType.TokenExpiredException,
                 ex.getTokenName(),
@@ -360,7 +364,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(WrongCredentialsException.class)
     protected ResponseEntity<Object> handleWrongCredentialsException(WrongCredentialsException ex, WebRequest request) {
         logger.info(ex.getClass().getName());
-        logger.error("error", ex);
 
         Error error = new Error(ErrorType.WrongCredentialsException,
                 ex.getResource() + "." + ex.getParameter(),
@@ -375,7 +378,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     protected ResponseEntity<Object> handleBadCredentialsException(BadCredentialsException ex, WebRequest request) {
         logger.info(ex.getClass().getName());
-        logger.error("error", ex);
 
         Error error = new Error(ErrorType.BadCredentialsException,
                 ex.getMessage(),
@@ -390,7 +392,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(DisabledException.class)
     protected ResponseEntity<Object> handleDisabledException(DisabledException ex, WebRequest request) {
         logger.info(ex.getClass().getName());
-        logger.error("error", ex);
 
         Error error = new Error(ErrorType.DisabledException,
                 "User",
@@ -405,7 +406,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(JWTVerificationException.class)
     protected ResponseEntity<Object> handleJWTVerificationException(JWTVerificationException ex, WebRequest request) {
         logger.info(ex.getClass().getName());
-        logger.error("error", ex);
 
         Error error = new Error(ErrorType.JWTVerificationException,
                 "accessToken",
@@ -415,6 +415,20 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         final ErrorResponse errorResponse = new ErrorResponse(error);
 
         return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    protected ResponseEntity<Object> handleMissingRequestHeaderException(MissingRequestHeaderException ex, WebRequest request) {
+        logger.info(ex.getClass().getName());
+
+        Error error = new Error(ErrorType.MissingRequestHeaderException,
+                ex.getHeaderName(),
+                ex.getMessage(),
+                ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.MissingRequestHeaderException).toUriString()
+        );
+        final ErrorResponse errorResponse = new ErrorResponse(error);
+
+        return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler(Exception.class)

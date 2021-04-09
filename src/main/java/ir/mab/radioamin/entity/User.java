@@ -53,4 +53,7 @@ public class User {
     @JoinColumn(name = "profileId", referencedColumnName = "id")
     Profile profile;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    Set<Session> sessions;
 }

@@ -226,6 +226,27 @@ public class UserController {
         throw new WrongCredentialsException("User", changeUserPasswordRequest.getActivationCode(), "ActivationCode");
     }
 
+    @PostMapping("/users/logout")
+    SuccessResponse<Boolean> userLogout(@RequestHeader(JWT_HEADER_STRING) String refreshToken) {
+
+        refreshToken = resolveRefreshToken(refreshToken);
+
+        Session session = sessionRepository.findSessionByRefreshToken(refreshToken)
+                .orElseThrow(() ->  new JWTVerificationException("Invalid Session"));
+
+        if (jwtTokenProvider.refreshTokenIsValid(refreshToken)){
+
+            sessionRepository.delete(session);
+
+            return new SuccessResponse<>("user logged out successfully",
+                    true);
+        }
+
+        throw new JWTVerificationException("Invalid refreshToken");
+    }
+
+
+
     private Boolean activationCodeValid(ActivationCode userInDbActivationCode, String requestActivationCode) {
         if (userInDbActivationCode.getCode().equals(requestActivationCode)) {
             if (System.currentTimeMillis() - userInDbActivationCode.getCreatedTime() < ActivationCodeExpireTime) {
@@ -236,5 +257,12 @@ public class UserController {
         }
 
         return false;
+    }
+
+    private String resolveRefreshToken(String refreshToken) {
+        if (!refreshToken.startsWith(JWT_TOKEN_PREFIX)){
+            throw new JWTVerificationException("It's not a Bearer token");
+        }
+        return refreshToken.substring(7);
     }
 }

@@ -23,6 +23,8 @@ public class ErrorEndpoints {
     public final static String BadCredentialsException = "error/BadCredentialsException";
     public final static String DisabledException = "error/DisabledException";
     public final static String JWTVerificationException = "error/JWTVerificationException";
+    public final static String MultipartException = "error/MultipartException";
+    public final static String FileStorageException = "error/FileStorageException";
     public final static String Unauthorized = "error/Unauthorized";
     public final static String AccessDenied = "error/AccessDenied";
 }

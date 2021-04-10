@@ -16,6 +16,8 @@ public enum ErrorType {
     NoHandlerFoundException,
     MissingPathVariableException,
     MissingRequestHeaderException,
+    FileStorageException,
+    MultipartException,
     ResourceAlreadyExistsException,
     ResourceNotFoundException,
     TokenExpiredException,

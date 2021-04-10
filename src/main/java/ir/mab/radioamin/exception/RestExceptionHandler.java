@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -425,6 +426,34 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 ex.getHeaderName(),
                 ex.getMessage(),
                 ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.MissingRequestHeaderException).toUriString()
+        );
+        final ErrorResponse errorResponse = new ErrorResponse(error);
+
+        return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(FileStorageException.class)
+    protected ResponseEntity<Object> handleFileStorageException(FileStorageException ex, WebRequest request) {
+        logger.info(ex.getClass().getName());
+
+        Error error = new Error(ErrorType.FileStorageException,
+                "FileStorage",
+                ex.getMessage(),
+                ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.FileStorageException).toUriString()
+        );
+        final ErrorResponse errorResponse = new ErrorResponse(error);
+
+        return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(MultipartException.class)
+    protected ResponseEntity<Object> handleMultipartException(MultipartException ex, WebRequest request) {
+        logger.info(ex.getClass().getName());
+
+        Error error = new Error(ErrorType.MultipartException,
+                "Multipart",
+                ex.getMessage(),
+                ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.MultipartException).toUriString()
         );
         final ErrorResponse errorResponse = new ErrorResponse(error);
 

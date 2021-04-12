@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -25,4 +26,8 @@ public class Avatar {
     @JsonIgnore
     @OneToOne(mappedBy = "avatar")
     Profile profile;
+
+    public String getUrl() {
+        return ServletUriComponentsBuilder.fromCurrentContextPath().path(url).toUriString();
+    }
 }

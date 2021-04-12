@@ -120,6 +120,7 @@ public class SecurityConfig {
         @Override
         public void configure(WebSecurity web) {
             web.ignoring().antMatchers(
+                    "/uploads/**",
                     "/configuration/ui",
                     "/swagger-resources/**",
                     "/configuration/security",

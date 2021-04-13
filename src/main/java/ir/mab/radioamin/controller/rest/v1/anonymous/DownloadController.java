@@ -27,18 +27,13 @@ public class DownloadController {
 
         Resource resource = fileStorageService.loadFileAsResource(request.getServletPath());
 
-        // Try to determine file's content type
-        String contentType = null;
+        String contentType;
         try {
             contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
         } catch (IOException ex) {
-            //logger.info("Could not determine file type.");
-        }
-
-        // Fallback to the default content type if type could not be determined
-        if(contentType == null) {
             contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
         }
+
         try {
             response.setContentType(contentType);
             IOUtils.copy(resource.getInputStream(), response.getOutputStream());

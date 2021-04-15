@@ -22,13 +22,13 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping(path = ApiBaseEndpoints.VersionOne.CONSUMER)
-public class ProfileController {
+public class ConsumerProfileController {
     UserRepository userRepository;
     ProfileRepository profileRepository;
     FileStorageService fileStorageService;
 
     @Autowired
-    public ProfileController(UserRepository userRepository, ProfileRepository profileRepository, FileStorageService fileStorageService) {
+    public ConsumerProfileController(UserRepository userRepository, ProfileRepository profileRepository, FileStorageService fileStorageService) {
         this.userRepository = userRepository;
         this.profileRepository = profileRepository;
         this.fileStorageService = fileStorageService;

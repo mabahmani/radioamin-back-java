@@ -12,6 +12,7 @@ import ir.mab.radioamin.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
@@ -38,17 +39,19 @@ public class DeveloperUserController {
     SuccessResponse<Page<User>> findUsers(
             @RequestParam(value = "email", required = false) String email,
             @RequestParam(value = "role", required = false) RoleEnum roleEnum,
+            @RequestParam(value = "sort", required = false, defaultValue = "email") String sort,
+            @RequestParam(value = "direction", required = false, defaultValue = "ASC") Sort.Direction direction,
             @RequestParam("page") Integer page,
             @RequestParam("size") Integer size) {
 
         if (roleEnum != null && email != null) {
-            return new SuccessResponse<>("success", userRepository.findAllByEmailContainingAndUserRolesIs(email, roleRepository.findRoleByRole(roleEnum).get(), PageRequest.of(page, size)));
+            return new SuccessResponse<>("success", userRepository.findAllByEmailContainingAndUserRolesIs(email, roleRepository.findRoleByRole(roleEnum).get(), PageRequest.of(page, size, Sort.by(direction, sort))));
         } else if (roleEnum != null) {
-            return new SuccessResponse<>("success", userRepository.findAllByUserRolesIs(roleRepository.findRoleByRole(roleEnum).get(), PageRequest.of(page, size)));
+            return new SuccessResponse<>("success", userRepository.findAllByUserRolesIs(roleRepository.findRoleByRole(roleEnum).get(), PageRequest.of(page, size, Sort.by(direction, sort))));
         } else if (email != null) {
-            return new SuccessResponse<>("success", userRepository.findAllByEmailContaining(email, PageRequest.of(page, size)));
+            return new SuccessResponse<>("success", userRepository.findAllByEmailContaining(email, PageRequest.of(page, size, Sort.by(direction, sort))));
         }
-        return new SuccessResponse<>("success", userRepository.findAll(PageRequest.of(page, size)));
+        return new SuccessResponse<>("success", userRepository.findAll(PageRequest.of(page, size, Sort.by(direction,sort))));
     }
 
     @GetMapping("/users/{id}")

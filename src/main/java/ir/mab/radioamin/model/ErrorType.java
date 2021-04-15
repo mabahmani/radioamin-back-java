@@ -21,6 +21,7 @@ public enum ErrorType {
     ResourceAlreadyExistsException,
     ResourceNotFoundException,
     JpaObjectRetrievalFailureException,
+    PropertyReferenceException,
     TokenExpiredException,
     WrongCredentialsException,
     BadCredentialsException,

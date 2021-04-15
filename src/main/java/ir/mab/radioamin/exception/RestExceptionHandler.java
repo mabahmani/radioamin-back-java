@@ -6,6 +6,7 @@ import ir.mab.radioamin.model.Error;
 import ir.mab.radioamin.model.ErrorType;
 import ir.mab.radioamin.model.res.ErrorResponse;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -357,6 +358,20 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 "entity",
                 ex.getMessage(),
                 ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.JpaObjectRetrievalFailureException).toUriString()
+        );
+        final ErrorResponse errorResponse = new ErrorResponse(error);
+
+        return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(PropertyReferenceException.class)
+    protected ResponseEntity<Object> handlePropertyReferenceException(PropertyReferenceException ex, WebRequest request) {
+        logger.info(ex.getClass().getName());
+
+        Error error = new Error(ErrorType.PropertyReferenceException,
+                ex.getPropertyName(),
+                ex.getMessage(),
+                ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.PropertyReferenceException).toUriString()
         );
         final ErrorResponse errorResponse = new ErrorResponse(error);
 

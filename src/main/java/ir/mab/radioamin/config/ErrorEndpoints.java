@@ -19,6 +19,7 @@ public class ErrorEndpoints {
     public final static String ResourceAlreadyExistsException = "error/ResourceAlreadyExistsException";
     public final static String ResourceNotFoundException = "error/ResourceNotFoundException";
     public final static String JpaObjectRetrievalFailureException = "error/JpaObjectRetrievalFailureException";
+    public final static String PropertyReferenceException = "error/PropertyReferenceException";
     public final static String TokenExpiredException = "error/TokenExpiredException";
     public final static String WrongCredentialsException = "error/WrongCredentialsException";
     public final static String BadCredentialsException = "error/BadCredentialsException";

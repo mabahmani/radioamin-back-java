@@ -13,12 +13,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @RestController
-public class DownloadController {
+public class AnonymousDownloadController {
 
     FileStorageService fileStorageService;
 
     @Autowired
-    public DownloadController(FileStorageService fileStorageService) {
+    public AnonymousDownloadController(FileStorageService fileStorageService) {
         this.fileStorageService = fileStorageService;
     }
 

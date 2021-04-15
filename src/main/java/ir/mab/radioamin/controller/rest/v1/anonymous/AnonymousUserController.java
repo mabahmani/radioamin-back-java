@@ -39,7 +39,7 @@ import static ir.mab.radioamin.security.SecurityConstants.*;
 
 @RestController
 @RequestMapping(path = ApiBaseEndpoints.VersionOne.ANONYMOUS)
-public class UserController {
+public class AnonymousUserController {
 
     UserRepository userRepository;
     RoleRepository roleRepository;
@@ -51,11 +51,11 @@ public class UserController {
     JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    public UserController(UserRepository userRepository, RoleRepository roleRepository,
-                          SessionRepository sessionRepository,
-                          EmailService emailService,
-                          CodeGeneratorService codeGeneratorService, PasswordEncoder passwordEncoder,
-                          AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
+    public AnonymousUserController(UserRepository userRepository, RoleRepository roleRepository,
+                                   SessionRepository sessionRepository,
+                                   EmailService emailService,
+                                   CodeGeneratorService codeGeneratorService, PasswordEncoder passwordEncoder,
+                                   AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.sessionRepository = sessionRepository;

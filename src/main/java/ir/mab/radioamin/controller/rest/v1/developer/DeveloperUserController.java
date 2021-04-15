@@ -41,8 +41,8 @@ public class DeveloperUserController {
             @RequestParam(value = "role", required = false) RoleEnum roleEnum,
             @RequestParam(value = "sort", required = false, defaultValue = "email") String sort,
             @RequestParam(value = "direction", required = false, defaultValue = "ASC") Sort.Direction direction,
-            @RequestParam("page") Integer page,
-            @RequestParam("size") Integer size) {
+            @RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
+            @RequestParam(value = "size", required = false, defaultValue = "20") Integer size) {
 
         if (roleEnum != null && email != null) {
             return new SuccessResponse<>("success", userRepository.findAllByEmailContainingAndUserRolesIs(email, roleRepository.findRoleByRole(roleEnum).get(), PageRequest.of(page, size, Sort.by(direction, sort))));

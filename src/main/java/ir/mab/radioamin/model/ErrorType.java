@@ -20,6 +20,7 @@ public enum ErrorType {
     MultipartException,
     ResourceAlreadyExistsException,
     ResourceNotFoundException,
+    JpaObjectRetrievalFailureException,
     TokenExpiredException,
     WrongCredentialsException,
     BadCredentialsException,

@@ -1,5 +1,6 @@
 package ir.mab.radioamin.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import ir.mab.radioamin.model.RoleEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,6 +25,7 @@ public class Role {
     @NotNull
     RoleEnum role;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "userRoles", fetch = FetchType.EAGER)
     Set<User> users;
 

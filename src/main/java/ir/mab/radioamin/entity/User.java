@@ -34,7 +34,7 @@ public class User {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Long createdAt;
 
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "userRoles",
@@ -48,12 +48,12 @@ public class User {
     @JoinColumn(name = "activationCodeId", referencedColumnName = "id")
     ActivationCode activationCode;
 
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "profileId", referencedColumnName = "id")
     Profile profile;
 
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @OneToMany(mappedBy = "user")
     Set<Session> sessions;
 }

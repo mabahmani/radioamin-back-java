@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.transaction.TransactionSystemException;
@@ -346,6 +347,20 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         final ErrorResponse errorResponse = new ErrorResponse(error);
 
         return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler(JpaObjectRetrievalFailureException.class)
+    protected ResponseEntity<Object> handleJpaObjectRetrievalFailureException(JpaObjectRetrievalFailureException ex, WebRequest request) {
+        logger.info(ex.getClass().getName());
+
+        Error error = new Error(ErrorType.JpaObjectRetrievalFailureException,
+                "entity",
+                ex.getMessage(),
+                ServletUriComponentsBuilder.fromCurrentContextPath().path(ErrorEndpoints.JpaObjectRetrievalFailureException).toUriString()
+        );
+        final ErrorResponse errorResponse = new ErrorResponse(error);
+
+        return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler(TokenExpiredException.class)

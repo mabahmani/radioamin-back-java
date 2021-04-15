@@ -1,5 +1,6 @@
 package ir.mab.radioamin.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,6 +19,7 @@ public class Session {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Long id;
 
+    @JsonIgnore
     @NotBlank
     @Column(nullable = false)
     String refreshToken;
@@ -33,6 +35,7 @@ public class Session {
     @Column(nullable = false)
     Long lastUpdate;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "user_id")
     User user;

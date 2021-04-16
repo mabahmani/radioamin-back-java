@@ -56,4 +56,24 @@ public class User {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @OneToMany(mappedBy = "user")
     Set<Session> sessions;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    Set<Playlist> playlists;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    Set<LikeDislike> likeDislikes;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    Set<Download> downloads;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    Set<Activity> activities;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    Set<Follow> follows;
 }

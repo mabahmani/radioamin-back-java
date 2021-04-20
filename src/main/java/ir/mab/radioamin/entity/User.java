@@ -76,4 +76,8 @@ public class User {
     @JsonIgnore
     @OneToMany(mappedBy = "user")
     Set<Follow> follows;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    Set<Music> musics;
 }

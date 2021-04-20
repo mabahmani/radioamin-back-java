@@ -12,8 +12,8 @@ import javax.validation.constraints.NotBlank;
 
 @Entity
 @Data
-@EqualsAndHashCode(exclude = "profile")
-@ToString(exclude = "profile")
+@EqualsAndHashCode(exclude = {"profile","singer"})
+@ToString(exclude = {"profile","singer"})
 public class Avatar {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,6 +26,10 @@ public class Avatar {
     @JsonIgnore
     @OneToOne(mappedBy = "avatar")
     Profile profile;
+
+    @JsonIgnore
+    @OneToOne(mappedBy = "avatar")
+    Singer singer;
 
     public String getUrl() {
         return ServletUriComponentsBuilder.fromCurrentContextPath().path(url).toUriString();

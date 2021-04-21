@@ -4,6 +4,7 @@ import ir.mab.radioamin.config.ApiBaseEndpoints;
 import ir.mab.radioamin.entity.Avatar;
 import ir.mab.radioamin.entity.Singer;
 import ir.mab.radioamin.exception.ResourceAlreadyExistsException;
+import ir.mab.radioamin.exception.ResourceNotFoundException;
 import ir.mab.radioamin.model.StorageType;
 import ir.mab.radioamin.model.res.SuccessResponse;
 import ir.mab.radioamin.repository.SingerRepository;
@@ -54,6 +55,32 @@ public class AdminSingerController {
 
         return new SuccessResponse<>("singer created", singerRepository.save(singer));
 
+    }
+
+    @PutMapping("/singer/{id}")
+    SuccessResponse<Singer> updateSinger(
+            @PathVariable Long id,
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "avatar", required = false) MultipartFile avatar) throws HttpMediaTypeNotSupportedException {
+
+        if (singerRepository.existsSingerByName(name)){
+            throw new ResourceAlreadyExistsException("singer", name);
+        }
+
+        Singer singer = singerRepository.findById(id).orElseThrow(()->
+                new ResourceNotFoundException("singer",String.valueOf(id),"id"));
+
+        if (name != null){
+            singer.setName(name);
+        }
+
+        if (avatar != null){
+            validAvatarContentType(avatar);
+            String avatarUrl = fileStorageService.storeFile(StorageType.SINGER_AVATAR,name, avatar);
+            singer.getAvatar().setUrl(avatarUrl);
+        }
+
+        return new SuccessResponse<>("singer updated", singerRepository.save(singer));
     }
 
     private void validAvatarContentType(MultipartFile file) throws HttpMediaTypeNotSupportedException {

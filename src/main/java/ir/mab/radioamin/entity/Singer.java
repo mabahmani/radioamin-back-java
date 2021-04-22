@@ -1,7 +1,10 @@
 package ir.mab.radioamin.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -10,6 +13,8 @@ import java.util.Set;
 
 @Entity
 @Data
+@EqualsAndHashCode(exclude = {"albums","musics"})
+@ToString(exclude = {"albums","musics"})
 public class Singer {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -25,7 +30,8 @@ public class Singer {
     Avatar avatar;
 
 
-    @OneToMany(mappedBy = "album")
+    @JsonIgnore
+    @OneToMany(mappedBy = "singer")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Set<Album> albums;
 

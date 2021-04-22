@@ -1,7 +1,9 @@
 package ir.mab.radioamin.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -10,6 +12,8 @@ import java.util.Set;
 
 @Entity
 @Data
+@EqualsAndHashCode(exclude = {"singer","musics"})
+@ToString(exclude = {"singer","musics"})
 public class Album {
 
     @Id
@@ -24,6 +28,7 @@ public class Album {
     @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "singer_id", nullable = false)
+    @JsonIgnoreProperties({"albums","musics","follows"})
     Singer singer;
 
     @NotNull
@@ -31,7 +36,6 @@ public class Album {
     @JoinColumn(name = "cover_id", referencedColumnName = "id")
     Cover cover;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "album")
     Set<Music> musics;
 }

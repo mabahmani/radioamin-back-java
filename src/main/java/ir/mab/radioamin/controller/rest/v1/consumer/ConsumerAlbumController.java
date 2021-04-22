@@ -31,19 +31,21 @@ public class ConsumerAlbumController {
             @RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
             @RequestParam(value = "size", required = false, defaultValue = "20") Integer size) {
 
+
+
         if (name != null && singer != null)
-            return new SuccessResponse<>("success", albumRepository.findAlbumsByNameContainingAndSinger_Name(name, singer, PageRequest.of(page, size, Sort.by(direction, sort))));
+            return new SuccessResponse<>("success", albumRepository.findAlbumsByNameContainingAndSinger_NameContaining(name, singer, PageRequest.of(page, size, Sort.by(direction, sort))));
 
         else if (name != null)
             return new SuccessResponse<>("success", albumRepository.findAlbumsByNameContaining(name, PageRequest.of(page, size, Sort.by(direction, sort))));
 
         else if (singer != null)
-            return new SuccessResponse<>("success", albumRepository.findAlbumsBySinger_Name(singer, PageRequest.of(page, size, Sort.by(direction, sort))));
+            return new SuccessResponse<>("success", albumRepository.findAlbumsBySinger_NameContaining(singer, PageRequest.of(page, size, Sort.by(direction, sort))));
 
         return new SuccessResponse<>("success", albumRepository.findAll(PageRequest.of(page, size, Sort.by(direction, sort))));
     }
 
-    @GetMapping("/singer/{id}")
+    @GetMapping("/album/{id}")
     SuccessResponse<Album> getAlbum(@PathVariable Long id) {
 
         Album album = albumRepository.findById(id).orElseThrow(() ->

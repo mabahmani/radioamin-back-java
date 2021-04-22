@@ -3,6 +3,7 @@ package ir.mab.radioamin.entity;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @Entity
@@ -12,6 +13,17 @@ public class Playlist {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
+
+    @NotNull
+    String name;
+
+    @NotNull
+    Long createdAt;
+
+    @NotNull
+    @OneToOne(cascade = CascadeType.ALL, optional = false)
+    @JoinColumn(name = "cover_id", referencedColumnName = "id")
+    Cover cover;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)

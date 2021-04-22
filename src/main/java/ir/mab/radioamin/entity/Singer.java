@@ -16,6 +16,7 @@ public class Singer {
     Long id;
 
     @NotBlank
+    @Column(unique = true)
     String name;
 
     @NotNull
@@ -23,6 +24,10 @@ public class Singer {
     @JoinColumn(name = "avatarId", referencedColumnName = "id")
     Avatar avatar;
 
+
+    @OneToMany(mappedBy = "album")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    Set<Album> albums;
 
     @OneToMany(mappedBy = "singer")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

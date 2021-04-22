@@ -19,6 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Arrays;
 import java.util.Objects;
 
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+
 @RestController
 @RequestMapping(path = ApiBaseEndpoints.VersionOne.ADMIN)
 public class AdminSingerController {
@@ -31,11 +33,11 @@ public class AdminSingerController {
         this.singerRepository = singerRepository;
     }
 
-    @PostMapping("/singer")
+    @PostMapping(value = "/singer", consumes = MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     SuccessResponse<Singer> createSinger(
             @RequestParam("name") String name,
-            @RequestParam("avatar") MultipartFile avatar) throws HttpMediaTypeNotSupportedException {
+            @RequestPart("avatar") MultipartFile avatar) throws HttpMediaTypeNotSupportedException {
 
         if (singerRepository.existsSingerByName(name)){
             throw new ResourceAlreadyExistsException("singer", name);
@@ -57,11 +59,11 @@ public class AdminSingerController {
 
     }
 
-    @PutMapping("/singer/{id}")
+    @PutMapping(value = "/singer/{id}", consumes = MULTIPART_FORM_DATA_VALUE)
     SuccessResponse<Singer> updateSinger(
             @PathVariable Long id,
             @RequestParam(value = "name", required = false) String name,
-            @RequestParam(value = "avatar", required = false) MultipartFile avatar) throws HttpMediaTypeNotSupportedException {
+            @RequestPart(value = "avatar", required = false) MultipartFile avatar) throws HttpMediaTypeNotSupportedException {
 
         if (singerRepository.existsSingerByName(name)){
             throw new ResourceAlreadyExistsException("singer", name);

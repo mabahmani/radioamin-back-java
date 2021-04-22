@@ -20,6 +20,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Arrays;
 import java.util.Objects;
 
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+
 @RestController
 @RequestMapping(path = ApiBaseEndpoints.VersionOne.ADMIN)
 public class AdminAlbumController {
@@ -34,13 +36,13 @@ public class AdminAlbumController {
         this.singerRepository = singerRepository;
     }
 
-    @PostMapping("/album")
+    @PostMapping(value = "/album",consumes = MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     SuccessResponse<Album> createAlbum(
+            @RequestPart("cover") MultipartFile coverFile,
             @RequestParam("name") String name,
             @RequestParam("singerId") Long singerId,
-            @RequestParam(value = "releaseDate", required = false) Long releaseDate,
-            @RequestParam("cover") MultipartFile coverFile) throws HttpMediaTypeNotSupportedException {
+            @RequestParam(value = "releaseDate", required = false) Long releaseDate) throws HttpMediaTypeNotSupportedException {
 
         Singer singer = singerRepository.findById(singerId).orElseThrow(
                 ()-> new ResourceNotFoundException("singer",String.valueOf(singerId),"id")
@@ -62,13 +64,13 @@ public class AdminAlbumController {
 
     }
 
-    @PutMapping("/album/{id}")
+    @PutMapping(value = "/album/{id}", consumes = MULTIPART_FORM_DATA_VALUE)
     SuccessResponse<Album> updateAlbum(
             @PathVariable Long id,
+            @RequestPart(value = "cover", required = false) MultipartFile coverFile,
             @RequestParam(value = "name") String name,
             @RequestParam(value = "singerId") Long singerId,
-            @RequestParam(value = "releaseDate", required = false) Long releaseDate,
-            @RequestParam(value = "cover", required = false) MultipartFile coverFile) throws HttpMediaTypeNotSupportedException {
+            @RequestParam(value = "releaseDate", required = false) Long releaseDate) throws HttpMediaTypeNotSupportedException {
 
         Album album = albumRepository.findById(id).orElseThrow(()->
                new ResourceNotFoundException("album",String.valueOf(id),"id")

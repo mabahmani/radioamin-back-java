@@ -39,7 +39,7 @@ public class Album {
 
     @NotNull
     @OneToOne(cascade = CascadeType.ALL, optional = false)
-    @JsonView(Views.Expand.class)
+    @JsonView(Views.Summary.class)
     @JsonIgnoreProperties({"album"})
     Cover cover;
 

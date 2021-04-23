@@ -4,6 +4,6 @@ public class Views {
     public static class Summary{
     }
     
-    public static class Expand{
+    public static class Expand extends Summary{
     }
 }

@@ -34,4 +34,9 @@ public class Avatar {
     public String getUrl() {
         return ServletUriComponentsBuilder.fromCurrentContextPath().path(url).toUriString();
     }
+
+    @JsonIgnore
+    public String getFilePath() {
+        return url;
+    }
 }

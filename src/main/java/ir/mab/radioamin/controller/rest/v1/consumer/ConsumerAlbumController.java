@@ -1,8 +1,10 @@
 package ir.mab.radioamin.controller.rest.v1.consumer;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import ir.mab.radioamin.config.ApiBaseEndpoints;
 import ir.mab.radioamin.entity.Album;
 import ir.mab.radioamin.exception.ResourceNotFoundException;
+import ir.mab.radioamin.model.Views;
 import ir.mab.radioamin.model.res.SuccessResponse;
 import ir.mab.radioamin.repository.AlbumRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ public class ConsumerAlbumController {
     }
 
     @GetMapping("/album")
+    @JsonView({Views.Summary.class})
     SuccessResponse<Page<Album>> getAlbums(
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "singer", required = false) String singer,
@@ -46,6 +49,7 @@ public class ConsumerAlbumController {
     }
 
     @GetMapping("/album/{id}")
+    @JsonView({Views.Expand.class})
     SuccessResponse<Album> getAlbum(@PathVariable Long id) {
 
         Album album = albumRepository.findById(id).orElseThrow(() ->

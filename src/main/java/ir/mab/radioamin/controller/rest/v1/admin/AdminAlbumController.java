@@ -80,17 +80,21 @@ public class AdminAlbumController {
                 ()-> new ResourceNotFoundException("singer",String.valueOf(singerId),"id")
         );
 
-        if (coverFile != null){
-            validAvatarContentType(coverFile);
-            String coverUrl = fileStorageService.storeFile(StorageType.ALBUM_COVER,name,coverFile);
-            Cover cover = new Cover();
-            cover.setUrl(coverUrl);
-            album.setCover(cover);
-        }
-
         album.setName(name);
         album.setReleaseDate(releaseDate);
         album.setSinger(singer);
+
+        if (coverFile != null){
+            validAvatarContentType(coverFile);
+            String coverUrl = fileStorageService.storeFile(StorageType.ALBUM_COVER,album.getName(),coverFile);
+
+            //delete old file
+            fileStorageService.deleteFile(album.getCover().getFilePath());
+
+            album.getCover().setUrl(coverUrl);
+        }
+
+
 
         return new SuccessResponse<>("album updated", albumRepository.save(album));
     }

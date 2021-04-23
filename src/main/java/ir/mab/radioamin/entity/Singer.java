@@ -1,7 +1,8 @@
 package ir.mab.radioamin.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonView;
+import ir.mab.radioamin.model.Views;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -18,28 +19,33 @@ import java.util.Set;
 public class Singer {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @JsonView(Views.Summary.class)
     Long id;
 
     @NotBlank
     @Column(unique = true)
+    @JsonView(Views.Summary.class)
     String name;
 
     @NotNull
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "avatarId", referencedColumnName = "id")
+    @JsonView(Views.Summary.class)
+    @JsonIgnoreProperties({"singer"})
     Avatar avatar;
 
-
-    @JsonIgnore
+    @JsonView(Views.Expand.class)
     @OneToMany(mappedBy = "singer")
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonIgnoreProperties({"singer"})
     Set<Album> albums;
 
+    @JsonView(Views.Expand.class)
     @OneToMany(mappedBy = "singer")
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonIgnoreProperties({"singer"})
     Set<Music> musics;
 
+    @JsonView(Views.Expand.class)
     @OneToMany(mappedBy = "singer")
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonIgnoreProperties({"singer"})
     Set<Follow> follows;
 }

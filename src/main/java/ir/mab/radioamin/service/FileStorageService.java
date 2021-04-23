@@ -60,6 +60,17 @@ public class FileStorageService {
         }
     }
 
+    public void deleteFile (String fileUrl) {
+        try {
+            Path filePath = Paths.get(rootPath + fileUrl);
+            Files.delete(filePath);
+        } catch (MalformedURLException ex) {
+            throw new ResourceNotFoundException("File", fileUrl, "url");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private Path generateFileStorageLocation(StorageType storageType, String identifierName) {
         Date date = new Date();
         SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");

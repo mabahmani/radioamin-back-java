@@ -78,7 +78,11 @@ public class AdminSingerController {
 
         if (avatar != null){
             validAvatarContentType(avatar);
-            String avatarUrl = fileStorageService.storeFile(StorageType.SINGER_AVATAR,name, avatar);
+            String avatarUrl = fileStorageService.storeFile(StorageType.SINGER_AVATAR,singer.getName(), avatar);
+
+            //delete old file
+            fileStorageService.deleteFile(singer.getAvatar().getFilePath());
+
             singer.getAvatar().setUrl(avatarUrl);
         }
 

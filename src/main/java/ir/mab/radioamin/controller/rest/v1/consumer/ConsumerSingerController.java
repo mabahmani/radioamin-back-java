@@ -1,8 +1,10 @@
 package ir.mab.radioamin.controller.rest.v1.consumer;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import ir.mab.radioamin.config.ApiBaseEndpoints;
 import ir.mab.radioamin.entity.Singer;
 import ir.mab.radioamin.exception.ResourceNotFoundException;
+import ir.mab.radioamin.model.Views;
 import ir.mab.radioamin.model.res.SuccessResponse;
 import ir.mab.radioamin.repository.SingerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ public class ConsumerSingerController {
     }
 
     @GetMapping("/singer")
+    @JsonView({Views.Summary.class})
     SuccessResponse<Page<Singer>> getSingers(
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "sort", required = false, defaultValue = "name") String sort,
@@ -40,6 +43,7 @@ public class ConsumerSingerController {
     }
 
     @GetMapping("/singer/{id}")
+    @JsonView({Views.Expand.class})
     SuccessResponse<Singer> getSinger(@PathVariable Long id) {
 
         Singer singer = singerRepository.findById(id).orElseThrow(()->

@@ -2,7 +2,7 @@ package ir.mab.radioamin.service;
 
 import ir.mab.radioamin.exception.FileStorageException;
 import ir.mab.radioamin.exception.ResourceNotFoundException;
-import ir.mab.radioamin.model.StorageType;
+import ir.mab.radioamin.model.enums.StorageType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;

@@ -2,7 +2,7 @@ package ir.mab.radioamin.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import ir.mab.radioamin.model.MusicType;
+import ir.mab.radioamin.model.enums.MusicType;
 import lombok.Data;
 
 import javax.persistence.*;

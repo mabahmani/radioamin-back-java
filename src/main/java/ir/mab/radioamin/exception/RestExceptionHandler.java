@@ -3,7 +3,7 @@ package ir.mab.radioamin.exception;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import ir.mab.radioamin.config.ErrorEndpoints;
 import ir.mab.radioamin.model.Error;
-import ir.mab.radioamin.model.ErrorType;
+import ir.mab.radioamin.model.enums.ErrorType;
 import ir.mab.radioamin.model.res.ErrorResponse;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.data.mapping.PropertyReferenceException;

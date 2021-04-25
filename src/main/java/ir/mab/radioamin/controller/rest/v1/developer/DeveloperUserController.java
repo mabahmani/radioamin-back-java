@@ -4,7 +4,7 @@ import ir.mab.radioamin.config.ApiBaseEndpoints;
 import ir.mab.radioamin.entity.Role;
 import ir.mab.radioamin.entity.User;
 import ir.mab.radioamin.exception.ResourceNotFoundException;
-import ir.mab.radioamin.model.RoleEnum;
+import ir.mab.radioamin.model.enums.RoleEnum;
 import ir.mab.radioamin.model.res.SuccessResponse;
 import ir.mab.radioamin.repository.RoleRepository;
 import ir.mab.radioamin.repository.SessionRepository;

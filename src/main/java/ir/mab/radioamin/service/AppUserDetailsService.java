@@ -2,7 +2,7 @@ package ir.mab.radioamin.service;
 
 import ir.mab.radioamin.entity.Role;
 import ir.mab.radioamin.entity.User;
-import ir.mab.radioamin.model.RoleEnum;
+import ir.mab.radioamin.model.enums.RoleEnum;
 import ir.mab.radioamin.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;

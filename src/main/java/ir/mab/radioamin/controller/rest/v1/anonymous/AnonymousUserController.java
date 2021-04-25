@@ -10,7 +10,7 @@ import ir.mab.radioamin.exception.ResourceAlreadyExistsException;
 import ir.mab.radioamin.exception.ResourceNotFoundException;
 import ir.mab.radioamin.exception.TokenExpiredException;
 import ir.mab.radioamin.exception.WrongCredentialsException;
-import ir.mab.radioamin.model.RoleEnum;
+import ir.mab.radioamin.model.enums.RoleEnum;
 import ir.mab.radioamin.model.req.ActivateUserRequest;
 import ir.mab.radioamin.model.req.ChangeUserPasswordRequest;
 import ir.mab.radioamin.model.res.JwtResponse;

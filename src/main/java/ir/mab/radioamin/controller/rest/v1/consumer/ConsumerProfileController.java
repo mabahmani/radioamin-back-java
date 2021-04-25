@@ -5,7 +5,7 @@ import ir.mab.radioamin.entity.Avatar;
 import ir.mab.radioamin.entity.Profile;
 import ir.mab.radioamin.entity.User;
 import ir.mab.radioamin.exception.ResourceNotFoundException;
-import ir.mab.radioamin.model.StorageType;
+import ir.mab.radioamin.model.enums.StorageType;
 import ir.mab.radioamin.model.res.SuccessResponse;
 import ir.mab.radioamin.repository.ProfileRepository;
 import ir.mab.radioamin.repository.UserRepository;

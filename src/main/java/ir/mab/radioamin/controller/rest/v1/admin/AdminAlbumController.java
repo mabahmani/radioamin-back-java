@@ -5,7 +5,7 @@ import ir.mab.radioamin.entity.Album;
 import ir.mab.radioamin.entity.Cover;
 import ir.mab.radioamin.entity.Singer;
 import ir.mab.radioamin.exception.ResourceNotFoundException;
-import ir.mab.radioamin.model.StorageType;
+import ir.mab.radioamin.model.enums.StorageType;
 import ir.mab.radioamin.model.res.SuccessResponse;
 import ir.mab.radioamin.repository.AlbumRepository;
 import ir.mab.radioamin.repository.SingerRepository;
@@ -36,7 +36,7 @@ public class AdminAlbumController {
         this.singerRepository = singerRepository;
     }
 
-    @PostMapping(value = "/album",consumes = MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/album", consumes = MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     SuccessResponse<Album> createAlbum(
             @RequestPart("cover") MultipartFile coverFile,
@@ -45,12 +45,12 @@ public class AdminAlbumController {
             @RequestParam(value = "releaseDate", required = false) Long releaseDate) throws HttpMediaTypeNotSupportedException {
 
         Singer singer = singerRepository.findById(singerId).orElseThrow(
-                ()-> new ResourceNotFoundException("singer",String.valueOf(singerId),"id")
+                () -> new ResourceNotFoundException("singer", String.valueOf(singerId), "id")
         );
 
         validAvatarContentType(coverFile);
 
-        String coverUrl = fileStorageService.storeFile(StorageType.ALBUM_COVER,name,coverFile);
+        String coverUrl = fileStorageService.storeFile(StorageType.ALBUM_COVER, name, coverFile);
         Cover cover = new Cover();
         cover.setUrl(coverUrl);
 
@@ -72,21 +72,21 @@ public class AdminAlbumController {
             @RequestParam(value = "singerId") Long singerId,
             @RequestParam(value = "releaseDate", required = false) Long releaseDate) throws HttpMediaTypeNotSupportedException {
 
-        Album album = albumRepository.findById(id).orElseThrow(()->
-               new ResourceNotFoundException("album",String.valueOf(id),"id")
+        Album album = albumRepository.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("album", String.valueOf(id), "id")
         );
 
         Singer singer = singerRepository.findById(singerId).orElseThrow(
-                ()-> new ResourceNotFoundException("singer",String.valueOf(singerId),"id")
+                () -> new ResourceNotFoundException("singer", String.valueOf(singerId), "id")
         );
 
         album.setName(name);
         album.setReleaseDate(releaseDate);
         album.setSinger(singer);
 
-        if (coverFile != null){
+        if (coverFile != null) {
             validAvatarContentType(coverFile);
-            String coverUrl = fileStorageService.storeFile(StorageType.ALBUM_COVER,album.getName(),coverFile);
+            String coverUrl = fileStorageService.storeFile(StorageType.ALBUM_COVER, album.getName(), coverFile);
 
             //delete old file
             fileStorageService.deleteFile(album.getCover().getFilePath());
@@ -95,15 +95,31 @@ public class AdminAlbumController {
         }
 
 
-
         return new SuccessResponse<>("album updated", albumRepository.save(album));
+    }
+
+    @DeleteMapping("/album/{id}")
+    SuccessResponse<Boolean> deleteAlbum(@PathVariable Long id) {
+
+        Album album = albumRepository.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("album", String.valueOf(id), "id")
+        );
+
+        try {
+            albumRepository.deleteById(id);
+            fileStorageService.deleteFile(album.getCover().getFilePath());
+            return new SuccessResponse<>("album deleted", true);
+        }
+        catch (Exception e){
+            return new SuccessResponse<>("album deleted", false);
+        }
     }
 
     private void validAvatarContentType(MultipartFile file) throws HttpMediaTypeNotSupportedException {
         if (!Arrays.asList(
                 MediaType.IMAGE_JPEG_VALUE,
                 MediaType.IMAGE_GIF_VALUE,
-                MediaType.IMAGE_PNG_VALUE).contains(file.getContentType())){
+                MediaType.IMAGE_PNG_VALUE).contains(file.getContentType())) {
 
             throw new HttpMediaTypeNotSupportedException(
                     MediaType.parseMediaType(Objects.requireNonNull(file.getContentType())),

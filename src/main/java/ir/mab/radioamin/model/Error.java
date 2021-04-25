@@ -1,5 +1,6 @@
 package ir.mab.radioamin.model;
 
+import ir.mab.radioamin.model.enums.ErrorType;
 import lombok.Data;
 
 @Data

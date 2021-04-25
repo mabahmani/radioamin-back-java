@@ -5,7 +5,7 @@ import ir.mab.radioamin.entity.Avatar;
 import ir.mab.radioamin.entity.Singer;
 import ir.mab.radioamin.exception.ResourceAlreadyExistsException;
 import ir.mab.radioamin.exception.ResourceNotFoundException;
-import ir.mab.radioamin.model.StorageType;
+import ir.mab.radioamin.model.enums.StorageType;
 import ir.mab.radioamin.model.res.SuccessResponse;
 import ir.mab.radioamin.repository.SingerRepository;
 import ir.mab.radioamin.service.FileStorageService;
@@ -87,6 +87,22 @@ public class AdminSingerController {
         }
 
         return new SuccessResponse<>("singer updated", singerRepository.save(singer));
+    }
+
+    @DeleteMapping("/singer/{id}")
+    SuccessResponse<Boolean> deleteSinger(@PathVariable Long id) {
+
+        Singer singer = singerRepository.findById(id).orElseThrow(()->
+                new ResourceNotFoundException("singer",String.valueOf(id),"id"));
+
+        try {
+            singerRepository.deleteById(id);
+            fileStorageService.deleteFile(singer.getAvatar().getFilePath());
+            return new SuccessResponse<>("singer deleted", true);
+        }
+        catch (Exception e){
+            return new SuccessResponse<>("singer deleted", false);
+        }
     }
 
     private void validAvatarContentType(MultipartFile file) throws HttpMediaTypeNotSupportedException {

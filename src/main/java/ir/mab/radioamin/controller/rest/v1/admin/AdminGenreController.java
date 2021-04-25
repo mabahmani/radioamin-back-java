@@ -22,7 +22,7 @@ public class AdminGenreController {
 
     @PostMapping("/genre")
     @ResponseStatus(HttpStatus.CREATED)
-    SuccessResponse<Genre> createSinger(@RequestParam("name") String name) {
+    SuccessResponse<Genre> createGenre(@RequestParam("name") String name) {
 
         if (genreRepository.existsGenreByName(name)){
             throw new ResourceAlreadyExistsException("genre", name);
@@ -36,7 +36,7 @@ public class AdminGenreController {
     }
 
     @PutMapping("/genre/{id}")
-    SuccessResponse<Genre> updateSinger(
+    SuccessResponse<Genre> updateGenre(
             @PathVariable Long id,
             @RequestParam(value = "name") String name) {
 
@@ -48,6 +48,18 @@ public class AdminGenreController {
                 new ResourceNotFoundException("genre",String.valueOf(id),"id"));
 
         return new SuccessResponse<>("genre updated", genreRepository.save(genre));
+    }
+
+    @DeleteMapping("/genre/{id}")
+    SuccessResponse<Boolean> deleteGenre(@PathVariable Long id) {
+
+        try {
+            genreRepository.deleteById(id);
+            return new SuccessResponse<>("genre deleted", true);
+        }
+        catch (Exception e){
+            return new SuccessResponse<>("genre deleted", false);
+        }
     }
 
 }

@@ -3,7 +3,7 @@ package ir.mab.radioamin.exception;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ir.mab.radioamin.config.ErrorEndpoints;
 import ir.mab.radioamin.model.Error;
-import ir.mab.radioamin.model.ErrorType;
+import ir.mab.radioamin.model.enums.ErrorType;
 import ir.mab.radioamin.model.res.ErrorResponse;
 import ir.mab.radioamin.security.SecurityConstants;
 import org.springframework.security.core.AuthenticationException;

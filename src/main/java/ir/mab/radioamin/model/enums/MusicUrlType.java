@@ -1,4 +1,4 @@
-package ir.mab.radioamin.model;
+package ir.mab.radioamin.model.enums;
 
 public enum MusicUrlType {
     MP3_64,

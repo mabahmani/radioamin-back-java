@@ -3,7 +3,7 @@ package ir.mab.radioamin.security;
 import ir.mab.radioamin.config.ApiBaseEndpoints;
 import ir.mab.radioamin.exception.RestAccessDeniedHandler;
 import ir.mab.radioamin.exception.RestAuthenticationEntryPoint;
-import ir.mab.radioamin.model.RoleEnum;
+import ir.mab.radioamin.model.enums.RoleEnum;
 import ir.mab.radioamin.service.AppUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;

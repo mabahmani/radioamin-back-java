@@ -1,7 +1,7 @@
 package ir.mab.radioamin.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import ir.mab.radioamin.model.RoleEnum;
+import ir.mab.radioamin.model.enums.RoleEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;

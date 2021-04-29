@@ -53,12 +53,7 @@ public class AdminLanguageController {
     @DeleteMapping("/language/{id}")
     SuccessResponse<Boolean> deleteLanguage(@PathVariable Long id) {
 
-        try {
-            languageRepository.deleteById(id);
-            return new SuccessResponse<>("language deleted", true);
-        }
-        catch (Exception e){
-            return new SuccessResponse<>("language deleted", false);
-        }
+        languageRepository.deleteById(id);
+        return new SuccessResponse<>("language deleted", true);
     }
 }

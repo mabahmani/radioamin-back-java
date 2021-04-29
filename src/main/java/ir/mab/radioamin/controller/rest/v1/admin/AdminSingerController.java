@@ -95,14 +95,9 @@ public class AdminSingerController {
         Singer singer = singerRepository.findById(id).orElseThrow(()->
                 new ResourceNotFoundException("singer",String.valueOf(id),"id"));
 
-        try {
-            singerRepository.deleteById(id);
-            fileStorageService.deleteFile(singer.getAvatar().getFilePath());
-            return new SuccessResponse<>("singer deleted", true);
-        }
-        catch (Exception e){
-            return new SuccessResponse<>("singer deleted", false);
-        }
+        singerRepository.deleteById(id);
+        fileStorageService.deleteFile(singer.getAvatar().getFilePath());
+        return new SuccessResponse<>("singer deleted", true);
     }
 
     private void validAvatarContentType(MultipartFile file) throws HttpMediaTypeNotSupportedException {

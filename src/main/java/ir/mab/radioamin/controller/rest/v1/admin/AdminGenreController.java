@@ -53,13 +53,8 @@ public class AdminGenreController {
     @DeleteMapping("/genre/{id}")
     SuccessResponse<Boolean> deleteGenre(@PathVariable Long id) {
 
-        try {
-            genreRepository.deleteById(id);
-            return new SuccessResponse<>("genre deleted", true);
-        }
-        catch (Exception e){
-            return new SuccessResponse<>("genre deleted", false);
-        }
+        genreRepository.deleteById(id);
+        return new SuccessResponse<>("genre deleted", true);
     }
 
 }

@@ -104,15 +104,9 @@ public class AdminAlbumController {
         Album album = albumRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException("album", String.valueOf(id), "id")
         );
-
-        try {
-            albumRepository.deleteById(id);
-            fileStorageService.deleteFile(album.getCover().getFilePath());
-            return new SuccessResponse<>("album deleted", true);
-        }
-        catch (Exception e){
-            return new SuccessResponse<>("album deleted", false);
-        }
+        albumRepository.deleteById(id);
+        fileStorageService.deleteFile(album.getCover().getFilePath());
+        return new SuccessResponse<>("album deleted", true);
     }
 
     private void validAvatarContentType(MultipartFile file) throws HttpMediaTypeNotSupportedException {

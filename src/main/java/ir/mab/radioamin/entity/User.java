@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import ir.mab.radioamin.constraint.ValidPassword;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -13,6 +15,8 @@ import java.util.Set;
 @Entity
 @Data
 @ValidPassword
+@ToString(exclude = "musics")
+@EqualsAndHashCode(exclude = "musics")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

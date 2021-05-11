@@ -43,6 +43,11 @@ public class AdminMusicController {
         this.musicUrlRepository = musicUrlRepository;
     }
 
+    @GetMapping(value = "/music/count")
+    SuccessResponse<Long> musicCount(){
+        return new SuccessResponse<>("number of musics", musicRepository.count());
+    }
+
     @PostMapping("/music")
     @ResponseStatus(HttpStatus.CREATED)
     SuccessResponse<Music> draftMusic(

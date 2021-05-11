@@ -36,6 +36,11 @@ public class AdminAlbumController {
         this.singerRepository = singerRepository;
     }
 
+    @GetMapping(value = "/album/count")
+    SuccessResponse<Long> albumCount(){
+        return new SuccessResponse<>("number of albums", albumRepository.count());
+    }
+
     @PostMapping(value = "/album", consumes = MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     SuccessResponse<Album> createAlbum(
@@ -63,6 +68,8 @@ public class AdminAlbumController {
         return new SuccessResponse<>("album created", albumRepository.save(album));
 
     }
+
+
 
     @PutMapping(value = "/album/{id}", consumes = MULTIPART_FORM_DATA_VALUE)
     SuccessResponse<Album> updateAlbum(

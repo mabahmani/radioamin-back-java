@@ -33,6 +33,11 @@ public class AdminSingerController {
         this.singerRepository = singerRepository;
     }
 
+    @GetMapping(value = "/singer/count")
+    SuccessResponse<Long> singerCount(){
+        return new SuccessResponse<>("number of singers", singerRepository.count());
+    }
+
     @PostMapping(value = "/singer", consumes = MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     SuccessResponse<Singer> createSinger(

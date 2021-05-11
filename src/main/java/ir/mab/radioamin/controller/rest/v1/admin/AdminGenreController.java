@@ -20,6 +20,11 @@ public class AdminGenreController {
         this.genreRepository = genreRepository;
     }
 
+    @GetMapping(value = "/genre/count")
+    SuccessResponse<Long> genreCount(){
+        return new SuccessResponse<>("number of genres", genreRepository.count());
+    }
+
     @PostMapping("/genre")
     @ResponseStatus(HttpStatus.CREATED)
     SuccessResponse<Genre> createGenre(@RequestParam("name") String name) {

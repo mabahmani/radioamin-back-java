@@ -20,6 +20,11 @@ public class AdminLanguageController {
         this.languageRepository = languageRepository;
     }
 
+    @GetMapping(value = "/language/count")
+    SuccessResponse<Long> languageCount(){
+        return new SuccessResponse<>("number of languages", languageRepository.count());
+    }
+
     @PostMapping("/language")
     @ResponseStatus(HttpStatus.CREATED)
     SuccessResponse<Language> createLanguage(@RequestParam("name") String name) {

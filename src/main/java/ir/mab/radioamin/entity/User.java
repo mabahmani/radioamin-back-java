@@ -55,6 +55,7 @@ public class User {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "profileId", referencedColumnName = "id")
+    @JsonIgnore
     Profile profile;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

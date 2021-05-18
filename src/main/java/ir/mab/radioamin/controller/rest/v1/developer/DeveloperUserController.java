@@ -39,19 +39,29 @@ public class DeveloperUserController {
     SuccessResponse<Page<User>> findUsers(
             @RequestParam(value = "email", required = false) String email,
             @RequestParam(value = "role", required = false) RoleEnum roleEnum,
+            @RequestParam(value = "active", required = false) Boolean active,
             @RequestParam(value = "sort", required = false, defaultValue = "email") String sort,
-            @RequestParam(value = "direction", required = false, defaultValue = "ASC") Sort.Direction direction,
+            @RequestParam(value = "direction", required = false, defaultValue = "DESC") Sort.Direction direction,
             @RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
-            @RequestParam(value = "size", required = false, defaultValue = "20") Integer size) {
+            @RequestParam(value = "size", required = false, defaultValue = "5") Integer size) {
 
-        if (roleEnum != null && email != null) {
+        if (roleEnum != null && email != null && active != null) {
+            return new SuccessResponse<>("success", userRepository.findAllByEmailContainingAndUserRolesIsAndActive(email, roleRepository.findRoleByRole(roleEnum).get(), active, PageRequest.of(page, size, Sort.by(direction, sort))));
+        } else if (roleEnum != null && email != null) {
             return new SuccessResponse<>("success", userRepository.findAllByEmailContainingAndUserRolesIs(email, roleRepository.findRoleByRole(roleEnum).get(), PageRequest.of(page, size, Sort.by(direction, sort))));
+        } else if (roleEnum != null && active != null) {
+            return new SuccessResponse<>("success", userRepository.findAllByUserRolesIsAndActiveIs(roleRepository.findRoleByRole(roleEnum).get(), active, PageRequest.of(page, size, Sort.by(direction, sort))));
+        } else if (email != null && active != null) {
+            return new SuccessResponse<>("success", userRepository.findAllByEmailContainingAndActiveIs(email, active, PageRequest.of(page, size, Sort.by(direction, sort))));
         } else if (roleEnum != null) {
             return new SuccessResponse<>("success", userRepository.findAllByUserRolesIs(roleRepository.findRoleByRole(roleEnum).get(), PageRequest.of(page, size, Sort.by(direction, sort))));
         } else if (email != null) {
             return new SuccessResponse<>("success", userRepository.findAllByEmailContaining(email, PageRequest.of(page, size, Sort.by(direction, sort))));
         }
-        return new SuccessResponse<>("success", userRepository.findAll(PageRequest.of(page, size, Sort.by(direction,sort))));
+        else if (active != null){
+            return new SuccessResponse<>("success", userRepository.findAllByActiveIs(active, PageRequest.of(page, size, Sort.by(direction, sort))));
+        }
+        return new SuccessResponse<>("success", userRepository.findAll(PageRequest.of(page, size, Sort.by(direction, sort))));
     }
 
     @GetMapping("/users/{id}")
@@ -61,7 +71,18 @@ public class DeveloperUserController {
         return new SuccessResponse<>("success", user);
     }
 
-    @PatchMapping("/users/{id}/userRoles")
+    @PutMapping("/users/changeActivate/{id}")
+    SuccessResponse<Boolean> changeUserActivation(@PathVariable("id") Long id) {
+        User user = userRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("user", String.valueOf(id), "userId"));
+
+        user.setActive(!user.getActive());
+        userRepository.save(user);
+
+        return new SuccessResponse<>("user activation", user.getActive());
+    }
+
+    @PutMapping("/users/userRoles/{id}")
     SuccessResponse<User> setUserRoles(
             @PathVariable("id") Long id,
             @RequestBody Set<Role> roleList) {

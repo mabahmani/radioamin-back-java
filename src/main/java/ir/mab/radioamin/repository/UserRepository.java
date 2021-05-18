@@ -16,5 +16,13 @@ public interface UserRepository extends PagingAndSortingRepository<User,Long> {
 
     Page<User> findAllByUserRolesIs(Role role, Pageable pageable);
 
+    Page<User> findAllByActiveIs(Boolean active, Pageable pageable);
+
     Page<User> findAllByEmailContainingAndUserRolesIs(String email, Role role, Pageable pageable);
+
+    Page<User> findAllByEmailContainingAndActiveIs(String email, Boolean active, Pageable pageable);
+
+    Page<User> findAllByUserRolesIsAndActiveIs(Role role, Boolean active, Pageable pageable);
+
+    Page<User> findAllByEmailContainingAndUserRolesIsAndActive(String email, Role role,Boolean active, Pageable pageable);
 }

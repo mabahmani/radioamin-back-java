@@ -10,8 +10,8 @@ import javax.persistence.*;
 
 @Entity
 @Data
-@EqualsAndHashCode(exclude = "user")
-@ToString(exclude = "user")
+@EqualsAndHashCode(exclude = {"user","avatar"})
+@ToString(exclude = {"user","avatar"})
 public class Profile {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

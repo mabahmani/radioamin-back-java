@@ -7,6 +7,9 @@ import ir.mab.radioamin.exception.ResourceNotFoundException;
 import ir.mab.radioamin.model.res.SuccessResponse;
 import ir.mab.radioamin.repository.LanguageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,15 +24,24 @@ public class AdminLanguageController {
     }
 
     @GetMapping(value = "/language/count")
-    SuccessResponse<Long> languageCount(){
+    SuccessResponse<Long> languageCount() {
         return new SuccessResponse<>("number of languages", languageRepository.count());
+    }
+
+    @GetMapping(value = "/language")
+    SuccessResponse<Page<Language>> findLanguages(
+            @RequestParam(value = "sort", required = false, defaultValue = "name") String sort,
+            @RequestParam(value = "direction", required = false, defaultValue = "ASC") Sort.Direction direction,
+            @RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
+            @RequestParam(value = "size", required = false, defaultValue = "5") Integer size) {
+        return new SuccessResponse<>("languages", languageRepository.findAll(PageRequest.of(page, size, direction, sort)));
     }
 
     @PostMapping("/language")
     @ResponseStatus(HttpStatus.CREATED)
     SuccessResponse<Language> createLanguage(@RequestParam("name") String name) {
 
-        if (languageRepository.existsLanguageByName(name)){
+        if (languageRepository.existsLanguageByName(name)) {
             throw new ResourceAlreadyExistsException("language", name);
         }
 
@@ -45,12 +57,12 @@ public class AdminLanguageController {
             @PathVariable Long id,
             @RequestParam(value = "name") String name) {
 
-        if (languageRepository.existsLanguageByName(name)){
+        if (languageRepository.existsLanguageByName(name)) {
             throw new ResourceAlreadyExistsException("language", name);
         }
 
-        Language language = languageRepository.findById(id).orElseThrow(()->
-                new ResourceNotFoundException("language",String.valueOf(id),"id"));
+        Language language = languageRepository.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("language", String.valueOf(id), "id"));
 
         return new SuccessResponse<>("language updated", languageRepository.save(language));
     }

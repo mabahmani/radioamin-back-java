@@ -64,6 +64,8 @@ public class AdminLanguageController {
         Language language = languageRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException("language", String.valueOf(id), "id"));
 
+        language.setName(name);
+
         return new SuccessResponse<>("language updated", languageRepository.save(language));
     }
 

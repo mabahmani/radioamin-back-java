@@ -2,13 +2,18 @@ package ir.mab.radioamin.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Data
+@EqualsAndHashCode(exclude = "moods")
+@ToString(exclude = "moods")
 public class Genre {
 
     @Id
@@ -20,18 +25,11 @@ public class Genre {
     String name;
 
     @JsonIgnore
-    @ManyToMany
-    @JoinTable(
-            name = "music_genres",
-            joinColumns = @JoinColumn(name = "music_id"),
-            inverseJoinColumns = @JoinColumn(name = "genre_id"))
+    @ManyToMany(mappedBy = "genres")
     Set<Music> musics;
 
+
     @JsonIgnore
-    @ManyToMany
-    @JoinTable(
-            name = "mood_geners",
-            joinColumns = @JoinColumn(name = "mood_id"),
-            inverseJoinColumns = @JoinColumn(name = "genre_id"))
-    Set<Mood> moods;
+    @ManyToMany(mappedBy = "genres")
+    Set<Mood> moods = new HashSet<>();
 }

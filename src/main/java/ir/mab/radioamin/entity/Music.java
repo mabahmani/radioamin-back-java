@@ -56,7 +56,11 @@ public class Music {
     @JsonIgnoreProperties({"music"})
     Cover cover;
 
-    @ManyToMany(mappedBy = "musics")
+    @ManyToMany
+    @JoinTable(
+            name = "music_genres",
+            joinColumns = @JoinColumn(name = "music_id"),
+            inverseJoinColumns = @JoinColumn(name = "genre_id"))
     @JsonView(Views.Expand.class)
     @JsonIgnoreProperties({"musics"})
     Set<Genre> genres;

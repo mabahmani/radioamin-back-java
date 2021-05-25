@@ -10,6 +10,9 @@ import ir.mab.radioamin.model.res.SuccessResponse;
 import ir.mab.radioamin.repository.SingerRepository;
 import ir.mab.radioamin.service.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -36,6 +39,22 @@ public class AdminSingerController {
     @GetMapping(value = "/singer/count")
     SuccessResponse<Long> singerCount(){
         return new SuccessResponse<>("number of singers", singerRepository.count());
+    }
+
+    @GetMapping(value = "/singer")
+    SuccessResponse<Page<Singer>> findSingers(
+            @RequestParam(value = "singer", required = false) String singer,
+            @RequestParam(value = "sort", required = false, defaultValue = "id") String sort,
+            @RequestParam(value = "direction", required = false, defaultValue = "DESC") Sort.Direction direction,
+            @RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
+            @RequestParam(value = "size", required = false, defaultValue = "5") Integer size)
+    {
+        if (singer != null){
+            return new SuccessResponse<>("singers", singerRepository.findSingersByNameContaining(singer, PageRequest.of(page, size, direction, sort)));
+        }
+
+        return new SuccessResponse<>("singers", singerRepository.findAll(PageRequest.of(page, size, direction, sort)));
+
     }
 
     @PostMapping(value = "/singer", consumes = MULTIPART_FORM_DATA_VALUE)
@@ -70,14 +89,17 @@ public class AdminSingerController {
             @RequestParam(value = "name", required = false) String name,
             @RequestPart(value = "avatar", required = false) MultipartFile avatar) throws HttpMediaTypeNotSupportedException {
 
-        if (singerRepository.existsSingerByName(name)){
-            throw new ResourceAlreadyExistsException("singer", name);
-        }
+
 
         Singer singer = singerRepository.findById(id).orElseThrow(()->
                 new ResourceNotFoundException("singer",String.valueOf(id),"id"));
 
         if (name != null){
+            if (!singer.getName().equals(name)){
+                if (singerRepository.existsSingerByName(name)){
+                    throw new ResourceAlreadyExistsException("singer", name);
+                }
+            }
             singer.setName(name);
         }
 

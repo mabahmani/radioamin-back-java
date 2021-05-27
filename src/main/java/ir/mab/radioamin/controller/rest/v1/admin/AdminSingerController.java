@@ -57,6 +57,12 @@ public class AdminSingerController {
 
     }
 
+    @GetMapping(value = "/singer/all")
+    SuccessResponse<Iterable<Singer>> getAllSingers()
+    {
+        return new SuccessResponse<>("singers", singerRepository.findAll());
+    }
+
     @PostMapping(value = "/singer", consumes = MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     SuccessResponse<Singer> createSinger(

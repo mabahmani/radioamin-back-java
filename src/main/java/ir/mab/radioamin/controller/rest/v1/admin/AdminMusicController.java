@@ -11,6 +11,9 @@ import ir.mab.radioamin.model.res.SuccessResponse;
 import ir.mab.radioamin.repository.*;
 import ir.mab.radioamin.service.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -46,6 +49,20 @@ public class AdminMusicController {
     @GetMapping(value = "/music/count")
     SuccessResponse<Long> musicCount(){
         return new SuccessResponse<>("number of musics", musicRepository.count());
+    }
+
+    @GetMapping(value = "/music")
+    SuccessResponse<Page<Music>> findMusics(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "sort", required = false, defaultValue = "id") String sort,
+            @RequestParam(value = "direction", required = false, defaultValue = "DESC") Sort.Direction direction,
+            @RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
+            @RequestParam(value = "size", required = false, defaultValue = "5") Integer size) {
+        if (name != null) {
+            return new SuccessResponse<>("musics", musicRepository.findMusicByNameContaining(name, PageRequest.of(page, size, direction, sort)));
+        }
+
+        return new SuccessResponse<>("musics", musicRepository.findAll(PageRequest.of(page, size, direction, sort)));
     }
 
     @PostMapping("/music")
@@ -98,7 +115,7 @@ public class AdminMusicController {
 
     }
 
-    @PostMapping("/music/{id}/upload")
+    @PostMapping("/music/upload/{id}")
     SuccessResponse<Set<MusicUrl>> uploadMusic(
             @PathVariable("id") Long musicId,
             @RequestParam("musicUrlType") MusicUrlType musicUrlType,
@@ -136,7 +153,48 @@ public class AdminMusicController {
 
     }
 
-    @DeleteMapping("/music/{id}/deleteMusic")
+    @PutMapping("/music/genre/{id}")
+    SuccessResponse<Music> addMusicGenres(
+            @PathVariable("id") Long musicId,
+            @RequestBody Set<Genre> genres){
+
+        Music music = musicRepository.findById(musicId).orElseThrow(
+                () -> new ResourceNotFoundException("music", String.valueOf(musicId), "id"));
+
+        music.setGenres(genres);
+
+        return new SuccessResponse<>("music genres updated", musicRepository.save(music));
+
+    }
+
+    @PutMapping("/music/publish/{id}")
+    SuccessResponse<Music> changeMusicPublishState(
+            @PathVariable("id") Long musicId){
+
+        Music music = musicRepository.findById(musicId).orElseThrow(
+                () -> new ResourceNotFoundException("music", String.valueOf(musicId), "id"));
+
+        music.setPublished(!music.getPublished());
+
+        return new SuccessResponse<>("music publish state updated", musicRepository.save(music));
+
+    }
+
+    @PutMapping("/music/lyric/{id}")
+    SuccessResponse<Music> addMusicLyric(
+            @PathVariable("id") Long musicId,
+            @RequestParam String lyric){
+
+        Music music = musicRepository.findById(musicId).orElseThrow(
+                () -> new ResourceNotFoundException("music", String.valueOf(musicId), "id"));
+
+        music.setLyric(lyric);
+
+        return new SuccessResponse<>("music lyric updated", musicRepository.save(music));
+
+    }
+
+    @DeleteMapping("/music/deleteMusic/{id}")
     SuccessResponse<Boolean> deleteMusicFile(
             @PathVariable("id") Long musicId,
             @RequestParam("musicUrlType") MusicUrlType musicUrlType){
@@ -165,12 +223,14 @@ public class AdminMusicController {
         Music music = musicRepository.findById(musicId).orElseThrow(
                 () -> new ResourceNotFoundException("music", String.valueOf(musicId), "id"));
 
+        musicRepository.deleteById(musicId);
+
         for (MusicUrl musicUrl : music.getMusicUrls()){
             fileStorageService.deleteFile(musicUrl.getFilePath());
         }
 
         fileStorageService.deleteFile(music.getCover().getFilePath());
-        musicRepository.deleteById(musicId);
+
 
         return new SuccessResponse<>("music deleted", true);
     }

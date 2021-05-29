@@ -1,6 +1,7 @@
 package ir.mab.radioamin.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -26,6 +27,7 @@ public class Genre {
 
     @JsonIgnore
     @ManyToMany(mappedBy = "genres")
+    @JsonIgnoreProperties({"genres"})
     Set<Music> musics;
 
 

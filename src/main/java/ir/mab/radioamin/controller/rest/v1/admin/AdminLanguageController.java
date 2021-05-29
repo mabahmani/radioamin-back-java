@@ -37,6 +37,11 @@ public class AdminLanguageController {
         return new SuccessResponse<>("languages", languageRepository.findAll(PageRequest.of(page, size, direction, sort)));
     }
 
+    @GetMapping(value = "/language/all")
+    SuccessResponse<Iterable<Language>> getAllLanguages() {
+        return new SuccessResponse<>("languages", languageRepository.findAll());
+    }
+
     @PostMapping("/language")
     @ResponseStatus(HttpStatus.CREATED)
     SuccessResponse<Language> createLanguage(@RequestParam("name") String name) {

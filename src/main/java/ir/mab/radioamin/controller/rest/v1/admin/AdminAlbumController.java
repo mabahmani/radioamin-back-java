@@ -60,6 +60,11 @@ public class AdminAlbumController {
         return new SuccessResponse<>("albums", albumRepository.findAll(PageRequest.of(page, size, direction, sort)));
     }
 
+    @GetMapping(value = "/album/all")
+    SuccessResponse<Iterable<Album>> getAllAlbums() {
+        return new SuccessResponse<>("albums", albumRepository.findAll());
+    }
+
     @PostMapping(value = "/album", consumes = MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     SuccessResponse<Album> createAlbum(

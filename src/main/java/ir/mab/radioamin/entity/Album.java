@@ -1,8 +1,7 @@
 package ir.mab.radioamin.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonView;
-import ir.mab.radioamin.model.Views;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -20,31 +19,34 @@ public class Album {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @JsonView(Views.Summary.class)
+
     Long id;
 
     @NotBlank
-    @JsonView(Views.Summary.class)
+
     String name;
 
-    @JsonView(Views.Expand.class)
+
     Long releaseDate;
 
     @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "singer_id", nullable = false)
-    @JsonView(Views.Expand.class)
+
     @JsonIgnoreProperties({"albums"})
+    @JsonIgnore
     Singer singer;
 
     @NotNull
     @OneToOne(cascade = CascadeType.ALL, optional = false)
-    @JsonView(Views.Summary.class)
+
     @JsonIgnoreProperties({"album"})
+    @JsonIgnore
     Cover cover;
 
     @OneToMany(mappedBy = "album")
-    @JsonView(Views.Expand.class)
+
     @JsonIgnoreProperties({"album"})
+    @JsonIgnore
     Set<Music> musics;
 }

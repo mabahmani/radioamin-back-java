@@ -37,6 +37,11 @@ public class AdminGenreController {
         return new SuccessResponse<>("languages", genreRepository.findAll(PageRequest.of(page, size, direction, sort)));
     }
 
+    @GetMapping(value = "/genre/all")
+    SuccessResponse<Iterable<Genre>> getAllGenres() {
+        return new SuccessResponse<>("languages", genreRepository.findAll());
+    }
+
     @PostMapping("/genre")
     @ResponseStatus(HttpStatus.CREATED)
     SuccessResponse<Genre> createGenre(@RequestParam("name") String name) {

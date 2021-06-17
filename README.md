@@ -1,2 +1,2 @@
 # radioamin-back-java
-a training music platform on java
+training java spring framwork on a music platform app

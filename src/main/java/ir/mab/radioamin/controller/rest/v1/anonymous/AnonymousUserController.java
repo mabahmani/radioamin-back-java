@@ -34,6 +34,7 @@ import javax.validation.Valid;
 import java.util.Collections;
 import java.util.Optional;
 
+import static ir.mab.radioamin.RadioaminApplication.generatePassayPassword;
 import static ir.mab.radioamin.security.SecurityConstants.*;
 
 
@@ -121,7 +122,7 @@ public class AnonymousUserController {
 
     @PostMapping("/users/login")
     SuccessResponse<JwtResponse> loginUser(
-            @RequestHeader("User-Agent")String userAgent,
+            @RequestHeader("User-Agent") String userAgent,
             @RequestBody User user,
             HttpServletRequest httpServletRequest
     ) {
@@ -153,23 +154,85 @@ public class AnonymousUserController {
         throw new WrongCredentialsException("User", user.getPassword(), "Password");
     }
 
+    @PostMapping("/users/login-google")
+    SuccessResponse<JwtResponse> loginUserByGoogle(
+            @RequestHeader("User-Agent") String userAgent,
+            @RequestBody String googleTokenId,
+            HttpServletRequest httpServletRequest
+    ) {
+
+        String userEmail = jwtTokenProvider.verifyGoogleTokenIdAndGetEmail(googleTokenId);
+
+        if (userEmail != null) {
+            String password = generatePassayPassword();
+            User user = userRepository.findUserByEmail(userEmail)
+                    .orElseGet(() -> {
+                                User newUser = new User();
+                                newUser.setEmail(userEmail);
+                                newUser.setActive(true);
+                                newUser.setCreatedAt(System.currentTimeMillis());
+                                Role consumerRole = roleRepository.findRoleByRole(RoleEnum.CONSUMER)
+                                        .orElseGet(() -> {
+                                            Role role = new Role(RoleEnum.CONSUMER);
+                                            return roleRepository.save(role);
+                                        });
+
+                                newUser.setUserRoles(Collections.singleton(consumerRole));
+
+                                return userRepository.save(newUser);
+                            }
+                    );
+
+            user.setPassword(passwordEncoder.encode(password));
+
+            Authentication authentication =
+                    authenticationManager
+                            .authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), password));
+
+            if (authentication.isAuthenticated()) {
+
+                String accessToken = jwtTokenProvider.createToken(user.getEmail());
+                String refreshToken = jwtTokenProvider.createRefreshToken(user.getEmail());
+
+                Session session = new Session();
+                session.setIp(httpServletRequest.getRemoteAddr());
+                session.setLastUpdate(System.currentTimeMillis());
+                session.setRefreshToken(refreshToken);
+                session.setUserAgent(userAgent);
+                session.setUser(
+                        userRepository.findUserByEmail(user.getEmail())
+                                .orElseThrow(() ->
+                                        new ResourceNotFoundException("User", user.getEmail(), "userId")));
+
+                sessionRepository.save(session);
+
+                return new SuccessResponse<>("login successful",
+                        new JwtResponse(accessToken, refreshToken));
+            }
+
+        }
+
+        throw new WrongCredentialsException("User", googleTokenId, "GoogleTokenId");
+
+    }
+
     @PostMapping("/users/new-token")
     @ResponseStatus(HttpStatus.CREATED)
     SuccessResponse<JwtResponse> newToken(
-            @RequestHeader("User-Agent")String userAgent,
+            @RequestHeader("User-Agent") String userAgent,
             @RequestHeader(JWT_HEADER_STRING) String refreshToken,
             HttpServletRequest httpServletRequest) {
 
-        if (!refreshToken.startsWith(JWT_TOKEN_PREFIX)){
+        if (!refreshToken.startsWith(JWT_TOKEN_PREFIX)) {
             throw new JWTVerificationException("It's not a Bearer token");
         }
 
         refreshToken = refreshToken.substring(7);
 
         Session session = sessionRepository.findSessionByRefreshToken(refreshToken)
-                .orElseThrow(() ->  new JWTVerificationException("Invalid Session"));
+                .orElseThrow(() -> new JWTVerificationException("Invalid Session"));
 
-        if (jwtTokenProvider.refreshTokenIsValid(refreshToken)){
+        if (jwtTokenProvider.refreshTokenIsValid(refreshToken)) {
 
             String email = jwtTokenProvider.getUserIdentifier(refreshToken);
             String newAccessToken = jwtTokenProvider.createToken(email);
@@ -232,9 +295,9 @@ public class AnonymousUserController {
         refreshToken = resolveRefreshToken(refreshToken);
 
         Session session = sessionRepository.findSessionByRefreshToken(refreshToken)
-                .orElseThrow(() ->  new JWTVerificationException("Invalid Session"));
+                .orElseThrow(() -> new JWTVerificationException("Invalid Session"));
 
-        if (jwtTokenProvider.refreshTokenIsValid(refreshToken)){
+        if (jwtTokenProvider.refreshTokenIsValid(refreshToken)) {
 
             sessionRepository.delete(session);
 
@@ -244,7 +307,6 @@ public class AnonymousUserController {
 
         throw new JWTVerificationException("Invalid refreshToken");
     }
-
 
 
     private Boolean activationCodeValid(ActivationCode userInDbActivationCode, String requestActivationCode) {
@@ -260,7 +322,7 @@ public class AnonymousUserController {
     }
 
     private String resolveRefreshToken(String refreshToken) {
-        if (!refreshToken.startsWith(JWT_TOKEN_PREFIX)){
+        if (!refreshToken.startsWith(JWT_TOKEN_PREFIX)) {
             throw new JWTVerificationException("It's not a Bearer token");
         }
         return refreshToken.substring(7);

@@ -82,7 +82,7 @@ public class RadioaminApplication {
         System.out.println("SECRET_PASS: " + password);
     }
 
-    public String generatePassayPassword() {
+    public static String generatePassayPassword() {
         PasswordGenerator gen = new PasswordGenerator();
         CharacterData lowerCaseChars = EnglishCharacterData.LowerCase;
         CharacterRule lowerCaseRule = new CharacterRule(lowerCaseChars);

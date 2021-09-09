@@ -10,13 +10,14 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.List;
 
 import static ir.mab.radioamin.security.SecurityConstants.*;
 
 @Component
 public class JwtTokenProvider {
 
-    public String createToken(String userIdentifier){
+    public String createToken(String userIdentifier) {
         try {
             return JWT.create()
                     .withSubject(userIdentifier)
@@ -28,7 +29,7 @@ public class JwtTokenProvider {
         }
     }
 
-    public String createRefreshToken(String userIdentifier){
+    public String createRefreshToken(String userIdentifier) {
         try {
             return JWT.create()
                     .withSubject(userIdentifier)
@@ -40,7 +41,7 @@ public class JwtTokenProvider {
         }
     }
 
-    public Boolean refreshTokenIsValid(String token){
+    public Boolean refreshTokenIsValid(String token) {
 
         if (token == null)
             return false;
@@ -56,27 +57,26 @@ public class JwtTokenProvider {
                     .build();
             verifier.verify(token);
             return true;
-        }
-        catch (JWTVerificationException exception){
+        } catch (JWTVerificationException exception) {
             return false;
         }
     }
 
-    public String verifyToken(HttpServletRequest httpServletRequest){
+    public String verifyToken(HttpServletRequest httpServletRequest) {
 
         String token = resolveToken(httpServletRequest);
 
-        if (token == null){
-            httpServletRequest.setAttribute(JWT_NOT_ATTACHED_ATTRIBUTE,"Access Token Not Attached.");
+        if (token == null) {
+            httpServletRequest.setAttribute(JWT_NOT_ATTACHED_ATTRIBUTE, "Access Token Not Attached.");
             throw new JWTVerificationException("Access Token Not Attached.");
         }
 
-        if (isExpired(token)){
-            httpServletRequest.setAttribute(JWT_EXPIRED_ATTRIBUTE,"Access Token Has Expired.");
+        if (isExpired(token)) {
+            httpServletRequest.setAttribute(JWT_EXPIRED_ATTRIBUTE, "Access Token Has Expired.");
             throw new JWTVerificationException("Access Token Has Expired.");
         }
 
-        if (!isAccessToken(token)){
+        if (!isAccessToken(token)) {
             throw new JWTVerificationException("Invalid Access Token.");
         }
 
@@ -87,13 +87,39 @@ public class JwtTokenProvider {
             DecodedJWT jwt = verifier.verify(token);
 
             return jwt.getSubject();
-        }
-        catch (JWTVerificationException exception){
-            throw new JWTVerificationException("Invalid Access Token.",exception);
+        } catch (JWTVerificationException exception) {
+            throw new JWTVerificationException("Invalid Access Token.", exception);
         }
     }
 
-    public String getUserIdentifier(String token){
+    public String verifyGoogleTokenIdAndGetEmail(String token) {
+
+        DecodedJWT payload = JWT.decode(token);
+        String iss = payload.getIssuer();
+        Date exp = payload.getExpiresAt();
+        String azp = String.valueOf(payload.getClaim("azp")).replaceAll("\"", "");
+        List<String> audList = payload.getAudience();
+
+        if (!iss.equals(SecurityConstants.GOOGLE_ISSUER)){
+            throw new JWTVerificationException("Invalid Access Token. (iss)");
+        }
+
+        if (!azp.equals(GOOGLE_AZP)){
+            throw new JWTVerificationException("Invalid Access Token. (azp)");
+        }
+
+        if (!audList.contains(GOOGLE_AUD)){
+            throw new JWTVerificationException("Invalid Access Token. (aud)");
+        }
+
+        if (exp.getTime() < System.currentTimeMillis()) {
+            throw new JWTVerificationException("Access Token Has Expired. (exp)");
+        }
+
+        return String.valueOf(payload.getClaim("email")).replaceAll("\"", "");
+    }
+
+    public String getUserIdentifier(String token) {
         return JWT.decode(token).getSubject();
     }
 
@@ -106,26 +132,23 @@ public class JwtTokenProvider {
         return JWT.decode(token).getIssuer().equals(REFRESH_TOKEN_ISSUER);
     }
 
-    private boolean isExpired(String token){
+    private boolean isExpired(String token) {
         return JWT.decode(token).getExpiresAt().before(new Date());
     }
 
-    public long getExpiredAt(String token){
+    public long getExpiredAt(String token) {
         return JWT.decode(token).getExpiresAt().getTime();
     }
 
     private String resolveToken(HttpServletRequest req) {
         String bearerToken = req.getHeader(JWT_HEADER_STRING);
 
-        if(bearerToken == null){
-            req.setAttribute(JWT_NOT_ATTACHED_ATTRIBUTE,"Access Token Not Attached.");
-        }
-
-        else {
-            if (!bearerToken.startsWith(JWT_TOKEN_PREFIX)){
-                req.setAttribute(JWT_BEARER_NOT_ATTACHED_ATTRIBUTE,"It's not a Bearer Token.");
-            }
-            else {
+        if (bearerToken == null) {
+            req.setAttribute(JWT_NOT_ATTACHED_ATTRIBUTE, "Access Token Not Attached.");
+        } else {
+            if (!bearerToken.startsWith(JWT_TOKEN_PREFIX)) {
+                req.setAttribute(JWT_BEARER_NOT_ATTACHED_ATTRIBUTE, "It's not a Bearer Token.");
+            } else {
                 return bearerToken.substring(7);
             }
         }

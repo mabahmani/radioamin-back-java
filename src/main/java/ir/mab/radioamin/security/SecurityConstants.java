@@ -18,4 +18,8 @@ public class SecurityConstants {
 
     public static final String JWT_ISSUER = "AC_ISSUER";
     public static final String REFRESH_TOKEN_ISSUER = "REF_ISSUER";
+
+    public static final String GOOGLE_ISSUER = "https://accounts.google.com";
+    public static final String GOOGLE_AZP = "1074139900657-4hslr6kqjvia8ut155ddh2hnkgijo3ta.apps.googleusercontent.com";
+    public static final String GOOGLE_AUD = "1074139900657-am0kuednioe7nhhe04m7v0qfeq06v04t.apps.googleusercontent.com";
 }

@@ -1,5 +1,8 @@
 package ir.mab.radioamin.security;
 
+import com.auth0.jwk.Jwk;
+import com.auth0.jwk.JwkProvider;
+import com.auth0.jwk.UrlJwkProvider;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -9,6 +12,8 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.URL;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
 import java.util.List;
 
@@ -94,29 +99,40 @@ public class JwtTokenProvider {
 
     public String verifyGoogleTokenIdAndGetEmail(String token) {
 
-        DecodedJWT payload = JWT.decode(token);
-        String iss = payload.getIssuer();
-        Date exp = payload.getExpiresAt();
-        String azp = String.valueOf(payload.getClaim("azp")).replaceAll("\"", "");
-        List<String> audList = payload.getAudience();
 
-        if (!iss.equals(SecurityConstants.GOOGLE_ISSUER)){
+        DecodedJWT jwt;
+        try {
+            jwt = JWT.decode(token);
+            JwkProvider provider = new UrlJwkProvider(new URL("https://www.googleapis.com/oauth2/v3/certs"));
+            Jwk jwk = provider.get(jwt.getKeyId());
+            Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null).verify(jwt);
+        } catch (Exception exception) {
+            System.out.println(exception.getMessage());
+            throw new JWTVerificationException("Invalid Access Token.");
+        }
+
+        String iss = jwt.getIssuer();
+        Date exp = jwt.getExpiresAt();
+        String azp = String.valueOf(jwt.getClaim("azp")).replaceAll("\"", "");
+        List<String> audList = jwt.getAudience();
+
+        if (iss != null && !iss.equals(SecurityConstants.GOOGLE_ISSUER)) {
             throw new JWTVerificationException("Invalid Access Token. (iss)");
         }
 
-        if (!azp.equals(GOOGLE_AZP)){
+        if (!azp.equals(GOOGLE_AZP)) {
             throw new JWTVerificationException("Invalid Access Token. (azp)");
         }
 
-        if (!audList.contains(GOOGLE_AUD)){
+        if (audList != null && !audList.contains(GOOGLE_AUD)) {
             throw new JWTVerificationException("Invalid Access Token. (aud)");
         }
 
-        if (exp.getTime() < System.currentTimeMillis()) {
+        if (exp != null && exp.getTime() < System.currentTimeMillis()) {
             throw new JWTVerificationException("Access Token Has Expired. (exp)");
         }
 
-        return String.valueOf(payload.getClaim("email")).replaceAll("\"", "");
+        return String.valueOf(jwt.getClaim("email")).replaceAll("\"", "");
     }
 
     public String getUserIdentifier(String token) {

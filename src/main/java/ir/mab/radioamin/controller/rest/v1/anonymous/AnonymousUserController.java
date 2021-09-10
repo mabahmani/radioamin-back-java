@@ -161,7 +161,7 @@ public class AnonymousUserController {
             HttpServletRequest httpServletRequest
     ) {
 
-        String userEmail = jwtTokenProvider.verifyGoogleTokenIdAndGetEmail(googleTokenId);
+        String userEmail = jwtTokenProvider.verifyGoogleTokenIdAndGetEmail(googleTokenId.replace("\"",""));
 
         if (userEmail != null) {
             String password = generatePassayPassword();

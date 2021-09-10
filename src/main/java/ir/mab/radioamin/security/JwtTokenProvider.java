@@ -99,7 +99,6 @@ public class JwtTokenProvider {
 
     public String verifyGoogleTokenIdAndGetEmail(String token) {
 
-
         DecodedJWT jwt;
         try {
             jwt = JWT.decode(token);

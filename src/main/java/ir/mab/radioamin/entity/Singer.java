@@ -51,4 +51,7 @@ public class Singer {
     @JsonIgnoreProperties({"singer"})
     @JsonIgnore
     Set<Follow> follows;
+
+    @JsonIgnore
+    Long followCounts = 0L;
 }

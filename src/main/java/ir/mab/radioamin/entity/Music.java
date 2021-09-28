@@ -98,4 +98,7 @@ public class Music {
     @OneToMany(mappedBy = "music")
     @JsonIgnoreProperties({"music"})
     Set<Activity> activities;
+
+    @JsonIgnore
+    Long playCount = 0L;
 }

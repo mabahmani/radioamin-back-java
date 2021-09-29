@@ -15,4 +15,6 @@ public interface MusicRepository extends PagingAndSortingRepository<Music,Long> 
     List<Music> findTop20By();
 
     List<Music> findTop20ByMusicTypeIs(MusicType musicType);
+
+    List<Music> findTop20ByOrderByIdDesc();
 }

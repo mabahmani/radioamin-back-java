@@ -64,6 +64,13 @@ public class ConsumerHomeController {
         topic.setMusics(featuredMusics);
         topics.add(topic);
 
+        List<Music> top20NewReleases = musicRepository.findTop20ByOrderByIdDesc();
+        topic = new HomeTopicsResponse.Topic();
+        topic.setTitle("New Releases");
+        topic.setTopicType(TopicType.MUSIC);
+        topic.setMusics(top20NewReleases);
+        topics.add(topic);
+
         User user = userRepository.findUserByEmail(authentication.getName()).orElseThrow(
                 () -> new ResourceNotFoundException("User", String.valueOf(authentication.getName()), "userId"));
 

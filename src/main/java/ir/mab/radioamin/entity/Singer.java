@@ -31,7 +31,6 @@ public class Singer {
     @JoinColumn(name = "avatarId", referencedColumnName = "id")
 
     @JsonIgnoreProperties({"singer"})
-    @JsonIgnore
     Avatar avatar;
 
 

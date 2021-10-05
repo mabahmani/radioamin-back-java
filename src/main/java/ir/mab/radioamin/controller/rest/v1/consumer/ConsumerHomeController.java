@@ -21,6 +21,7 @@ import java.util.List;
 @RequestMapping(path = ApiBaseEndpoints.VersionOne.CONSUMER)
 public class ConsumerHomeController {
     SingerRepository singerRepository;
+    AlbumRepository albumRepository;
     UserRepository userRepository;
     MusicRepository musicRepository;
     GenreRepository genreRepository;
@@ -30,6 +31,7 @@ public class ConsumerHomeController {
     @Autowired
     public ConsumerHomeController(
             SingerRepository singerRepository,
+            AlbumRepository albumRepository,
             UserRepository userRepository,
             MusicRepository musicRepository,
             GenreRepository genreRepository,
@@ -38,6 +40,7 @@ public class ConsumerHomeController {
 
     ) {
         this.singerRepository = singerRepository;
+        this.albumRepository = albumRepository;
         this.userRepository = userRepository;
         this.musicRepository = musicRepository;
         this.genreRepository = genreRepository;
@@ -92,29 +95,28 @@ public class ConsumerHomeController {
 
         topic = new HomeTopicsResponse.Topic();
         topic.setTitle("Quick Picks");
-        topic.setTopicType(TopicType.MUSIC);
+        topic.setTopicType(TopicType.QUICK_PICK);
         topic.setMusics(quickPicks);
         topics.add(topic);
 
 
-        List<Genre> top20Genres = genreRepository.findTop20By();
+        List<Album> top20Albums = albumRepository.findTop20By();
         topic = new HomeTopicsResponse.Topic();
-        topic.setTitle("Top Genres");
-        topic.setTopicType(TopicType.GENRE);
-        topic.setGenres(top20Genres);
+        topic.setTitle("Top Albums");
+        topic.setTopicType(TopicType.ALBUM);
+        topic.setAlbums(top20Albums);
         topics.add(topic);
 
-        List<Mood> top20Moods = moodRepository.findTop20By();
         topic = new HomeTopicsResponse.Topic();
-        topic.setTitle("Top Moods");
-        topic.setTopicType(TopicType.MOOD);
-        topic.setMoods(top20Moods);
+        topic.setTitle("Top Singers");
+        topic.setTopicType(TopicType.SINGER);
+        topic.setSingers(top20Singers);
         topics.add(topic);
 
         List<Music> top20Videos = musicRepository.findTop20ByMusicTypeIs(MusicType.VIDEO);
         topic = new HomeTopicsResponse.Topic();
         topic.setTitle("Recommended Music Videos");
-        topic.setTopicType(TopicType.MUSIC);
+        topic.setTopicType(TopicType.MUSIC_VIDEO);
         topic.setMusics(top20Videos);
         topics.add(topic);
 

@@ -1,9 +1,9 @@
 package ir.mab.radioamin.model.res;
 
-import ir.mab.radioamin.entity.Genre;
-import ir.mab.radioamin.entity.Mood;
+import ir.mab.radioamin.entity.Album;
 import ir.mab.radioamin.entity.Music;
 import ir.mab.radioamin.entity.Playlist;
+import ir.mab.radioamin.entity.Singer;
 import ir.mab.radioamin.model.enums.TopicType;
 
 import java.util.List;
@@ -21,8 +21,8 @@ public class HomeTopicsResponse {
         TopicType topicType;
         List<Music> musics;
         List<Playlist> playlists;
-        List<Genre> genres;
-        List<Mood> moods;
+        List<Album> albums;
+        List<Singer> singers;
 
         public String getTitle() {
             return title;
@@ -56,20 +56,20 @@ public class HomeTopicsResponse {
             this.playlists = playlists;
         }
 
-        public List<Genre> getGenres() {
-            return genres;
+        public List<Album> getAlbums() {
+            return albums;
         }
 
-        public void setGenres(List<Genre> genres) {
-            this.genres = genres;
+        public void setAlbums(List<Album> albums) {
+            this.albums = albums;
         }
 
-        public List<Mood> getMoods() {
-            return moods;
+        public List<Singer> getSingers() {
+            return singers;
         }
 
-        public void setMoods(List<Mood> moods) {
-            this.moods = moods;
+        public void setSingers(List<Singer> singers) {
+            this.singers = singers;
         }
 
         @Override
@@ -79,8 +79,8 @@ public class HomeTopicsResponse {
                     ", topicType=" + topicType +
                     ", musics=" + musics +
                     ", playlists=" + playlists +
-                    ", genres=" + genres +
-                    ", moods=" + moods +
+                    ", albums=" + albums +
+                    ", singers=" + singers +
                     '}';
         }
     }

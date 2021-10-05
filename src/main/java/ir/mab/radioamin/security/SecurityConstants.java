@@ -2,7 +2,7 @@ package ir.mab.radioamin.security;
 
 public class SecurityConstants {
     public static final long ActivationCodeExpireTime = 5 * 60 * 1000;
-    public static final long JWT_EXPIRATION_TIME = 1 * 24 * 60 * 1000;
+    public static final long JWT_EXPIRATION_TIME = 1 * 1 * 60 * 1000;
     public static final long REFRESH_TOKEN_EXPIRATION_TIME = 7 * 24 * 60 * 60 * 1000;
 
     public static final String JWT_SECRET = "JWT_SECRET_KEY";

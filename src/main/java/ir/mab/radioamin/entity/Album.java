@@ -34,14 +34,12 @@ public class Album {
     @JoinColumn(name = "singer_id", nullable = false)
 
     @JsonIgnoreProperties({"albums"})
-    @JsonIgnore
     Singer singer;
 
     @NotNull
     @OneToOne(cascade = CascadeType.ALL, optional = false)
 
     @JsonIgnoreProperties({"album"})
-    @JsonIgnore
     Cover cover;
 
     @OneToMany(mappedBy = "album")

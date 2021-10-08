@@ -59,7 +59,8 @@ public class ConsumerHomeController {
         List<Music> featuredMusics = new ArrayList<>();
         for (Singer singer: top20Singers){
             if (!singer.getMusics().isEmpty())
-                featuredMusics.add(singer.getMusics().iterator().next());
+                if (singer.getMusics().iterator().next().getMusicType() == MusicType.VOCAL)
+                    featuredMusics.add(singer.getMusics().iterator().next());
         }
         HomeTopicsResponse.Topic topic = new HomeTopicsResponse.Topic();
         topic.setTitle("Featured Musics");
@@ -67,7 +68,7 @@ public class ConsumerHomeController {
         topic.setMusics(featuredMusics);
         topics.add(topic);
 
-        List<Music> top20NewReleases = musicRepository.findTop20ByOrderByIdDesc();
+        List<Music> top20NewReleases = musicRepository.findTop20ByMusicTypeIsOrderByIdDesc(MusicType.VOCAL);
         topic = new HomeTopicsResponse.Topic();
         topic.setTitle("New Releases");
         topic.setTopicType(TopicType.MUSIC);
@@ -80,13 +81,14 @@ public class ConsumerHomeController {
         List<Music> quickPicks = new ArrayList<>();
         for (Follow follow: user.getFollows()){
             if (!follow.getSinger().getMusics().isEmpty())
-                quickPicks.add(follow.getSinger().getMusics().iterator().next());
+                if (follow.getSinger().getMusics().iterator().next().getMusicType() == MusicType.VOCAL)
+                    quickPicks.add(follow.getSinger().getMusics().iterator().next());
         }
 
         int remain = 20 - quickPicks.size();
 
         if (remain > 0){
-            List<Music> top20 = musicRepository.findTop20By();
+            List<Music> top20 = musicRepository.findTop20ByMusicTypeIs(MusicType.VOCAL);
             for (int i=0; i<remain; i++){
                 if (top20.size() > i)
                     quickPicks.add(top20.get(i));

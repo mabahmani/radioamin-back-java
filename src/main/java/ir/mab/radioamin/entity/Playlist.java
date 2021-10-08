@@ -1,6 +1,8 @@
 package ir.mab.radioamin.entity;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -8,6 +10,8 @@ import java.util.Set;
 
 @Entity
 @Data
+@EqualsAndHashCode(exclude = {"musics"})
+@ToString(exclude = {"musics"})
 public class Playlist {
 
     @Id

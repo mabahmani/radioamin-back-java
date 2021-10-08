@@ -15,8 +15,8 @@ import java.util.Set;
 @Entity
 @Data
 @ValidPassword
-@ToString(exclude = "musics")
-@EqualsAndHashCode(exclude = "musics")
+@ToString(exclude = {"musics","playlists"})
+@EqualsAndHashCode(exclude = {"musics","playlists"})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
